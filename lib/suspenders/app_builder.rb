@@ -14,6 +14,13 @@ module Suspenders
       template 'README.md.erb', 'README.md'
     end
 
+    def setup_rack_mini_profiler
+      copy_file(
+        "rack_mini_profiler.rb",
+        "config/initializers/rack_mini_profiler.rb",
+      )
+    end
+
     def raise_on_missing_assets_in_test
       inject_into_file(
         "config/environments/test.rb",

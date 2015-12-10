@@ -1,5 +1,7 @@
 HEAD
 
+* Generate applications with `rack_mini_profiler` (disabled by default, enabled
+  by setting `RACK_MINI_PROFILER=1`.
 * Add ability to use byebug navigation commands inside of Pry using the
   `pry-byebug` gem
 * Remove i18n-tasks
