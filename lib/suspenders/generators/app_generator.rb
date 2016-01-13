@@ -1,28 +1,42 @@
 require 'rails/generators'
 require 'rails/generators/rails/app/app_generator'
-
+require 'pry'
 module Suspenders
   class AppGenerator < Rails::Generators::AppGenerator
-    class_option :database, type: :string, aliases: "-d", default: "postgresql",
-      desc: "Configure for selected database (options: #{DATABASES.join("/")})"
 
-    class_option :heroku, type: :boolean, aliases: "-H", default: false,
-      desc: "Create staging and production Heroku apps"
+    def self.start
+      class_option :database, type: :string, aliases: "-d", default: "postgresql",
+        desc: "Configure for selected database (options: #{DATABASES.join("/")})"
 
-    class_option :heroku_flags, type: :string, default: "",
-      desc: "Set extra Heroku flags"
+      class_option :heroku, type: :boolean, aliases: "-H", default: false,
+        desc: "Create staging and production Heroku apps"
 
-    class_option :github, type: :string, aliases: "-G", default: nil,
-      desc: "Create Github repository and add remote origin pointed to repo"
+      class_option :heroku_flags, type: :string, default: "",
+        desc: "Set extra Heroku flags"
 
-    class_option :skip_test_unit, type: :boolean, aliases: "-T", default: true,
-      desc: "Skip Test::Unit files"
+      class_option :github, type: :string, aliases: "-G", default: nil,
+        desc: "Create Github repository and add remote origin pointed to repo"
 
-    class_option :skip_turbolinks, type: :boolean, default: true,
-      desc: "Skip turbolinks gem"
+      class_option :skip_test_unit, type: :boolean, aliases: "-T", default: true,
+        desc: "Skip Test::Unit files"
 
-    class_option :skip_bundle, type: :boolean, aliases: "-B", default: true,
-      desc: "Don't run bundle install"
+      class_option :skip_turbolinks, type: :boolean, default: true,
+        desc: "Skip turbolinks gem"
+
+      class_option :skip_bundle, type: :boolean, aliases: "-B", default: true,
+        desc: "Don't run bundle install"
+
+      class_option :user_gems, type: :boolean, aliases: "-c", default: false,
+        desc: "Ask user for gem choice"
+
+      Suspenders::AppBuilder.public_instance_methods.map(&:to_s).grep(/_gem$/).grep_v(/add_/).map{|a| a[0..-5] }.sort.each do |g|
+        class_option g.to_sym, type: :boolean, aliases: "--#{g}", default: false,
+        desc: "#{g.humanize} gem install"
+      end    
+      super
+    end
+
+
 
     def finish_template
       invoke :suspenders_customization
@@ -31,6 +45,8 @@ module Suspenders
 
     def suspenders_customization
       invoke :customize_gemfile
+      invoke :custom_gems_setup
+      invoke :bundleinstall
       invoke :setup_development_environment
       invoke :setup_test_environment
       invoke :setup_production_environment
@@ -63,8 +79,13 @@ module Suspenders
       build :set_ruby_to_version_being_used
 
       build :set_up_heroku_specific_gems if options[:heroku]
+    end
 
-      build :users_gems
+    def custom_gems_setup
+      build :users_gems if options[:user_gems]
+    end
+
+    def bundleinstall
       bundle_command 'install'
       build :configure_simple_form
     end
