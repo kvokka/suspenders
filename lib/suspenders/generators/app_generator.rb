@@ -2,34 +2,33 @@ require 'rails/generators'
 require 'rails/generators/rails/app/app_generator'
 module Suspenders
   class AppGenerator < Rails::Generators::AppGenerator
-
     def self.start
-      class_option :database, type: :string, aliases: "-d", default: "postgresql",
-        desc: "Configure for selected database (options: #{DATABASES.join("/")})"
+      class_option :database, type: :string, aliases: '-d', default: 'postgresql',
+        desc: "Configure for selected database (options: #{DATABASES.join('/')})"
 
-      class_option :heroku, type: :boolean, aliases: "-H", default: false,
-        desc: "Create staging and production Heroku apps"
+      class_option :heroku, type: :boolean, aliases: '-H', default: false,
+        desc: 'Create staging and production Heroku apps'
 
-      class_option :heroku_flags, type: :string, default: "",
-        desc: "Set extra Heroku flags"
+      class_option :heroku_flags, type: :string, default: '',
+        desc: 'Set extra Heroku flags'
 
-      class_option :github, type: :string, aliases: "-G", default: nil,
-        desc: "Create Github repository and add remote origin pointed to repo"
+      class_option :github, type: :string, aliases: '-G', default: nil,
+        desc: 'Create Github repository and add remote origin pointed to repo'
 
-      class_option :skip_test_unit, type: :boolean, aliases: "-T", default: true,
-        desc: "Skip Test::Unit files"
+      class_option :skip_test_unit, type: :boolean, aliases: '-T', default: true,
+        desc: 'Skip Test::Unit files'
 
       class_option :skip_turbolinks, type: :boolean, default: true,
-        desc: "Skip turbolinks gem"
+        desc: 'Skip turbolinks gem'
 
-      class_option :skip_bundle, type: :boolean, aliases: "-B", default: true,
+      class_option :skip_bundle, type: :boolean, aliases: '-B', default: true,
         desc: "Don't run bundle install"
 
-      class_option :user_gems, type: :boolean, aliases: "-c", default: false,
-        desc: "Ask user for gem choice"
+      class_option :user_gems, type: :boolean, aliases: '-c', default: false,
+        desc: 'Ask user for gem choice'
 
-      class_option :clean_comments, type: :boolean, aliases: "--clean_comments", default: false,
-        desc: "Clean up comments in config & routes files"
+      class_option :clean_comments, type: :boolean, aliases: '--clean_comments', default: false,
+        desc: 'Clean up comments in config & routes files'
 
       GEMPROCLIST.each do |g|
         class_option g.to_sym, type: :boolean, aliases: "--#{g}", default: false,
@@ -53,10 +52,10 @@ module Suspenders
       invoke :setup_staging_environment
       invoke :setup_secret_token
       invoke :configure_app
-    #  invoke :create_suspenders_views
-    #  invoke :setup_stylesheets
-    #  invoke :install_bitters
-    #  invoke :install_refills
+      #  invoke :create_suspenders_views
+      #  invoke :setup_stylesheets
+      #  invoke :install_bitters
+      #  invoke :install_refills
       invoke :copy_miscellaneous_files
       invoke :customize_error_pages
       invoke :remove_config_comment_lines
@@ -119,14 +118,14 @@ module Suspenders
       say 'Setting up the test environment'
       build :set_up_factory_girl_for_rspec
       build :generate_factories_file
-    #  build :set_up_hound
+      #  build :set_up_hound
       build :generate_rspec
       build :configure_rspec
       build :configure_background_jobs_for_rspec
       build :enable_database_cleaner
       build :provide_shoulda_matchers_config
       build :configure_spec_support_features
-    #  build :configure_ci
+      #  build :configure_ci
       build :configure_i18n_for_test_environment
       build :configure_action_mailer_in_specs
       build :configure_capybara_webkit
@@ -196,14 +195,12 @@ module Suspenders
     end
 
     def git_first_commit
-      unless options[:skip_git]
-        invoke :git_init_commit
-      end
+      invoke :git_init_commit unless options[:skip_git]
     end
 
     def create_heroku_apps
       if options[:heroku]
-        say "Creating Heroku apps"
+        say 'Creating Heroku apps'
         build :create_heroku_apps, options[:heroku_flags]
         build :provide_review_apps_setup_script
         build :set_heroku_serve_static_files
@@ -241,7 +238,7 @@ module Suspenders
     end
 
     def setup_spring
-      say "Springifying binstubs"
+      say 'Springifying binstubs'
       build :setup_spring
     end
 
@@ -278,12 +275,12 @@ module Suspenders
 
     protected
 
-    def get_builder_class
-      Suspenders::AppBuilder
-    end
+      def get_builder_class
+        Suspenders::AppBuilder
+      end
 
-    def using_active_record?
-      !options[:skip_active_record]
-    end
+      def using_active_record?
+        !options[:skip_active_record]
+      end
   end
 end
