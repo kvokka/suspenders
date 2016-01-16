@@ -47,20 +47,20 @@ module Suspenders
       invoke :customize_gemfile
       invoke :custom_gems_setup
       invoke :bundleinstall
-      invoke :setup_development_environment  #checked
-      invoke :setup_test_environment        #checked
-      invoke :setup_production_environment    #checked
-      invoke :setup_staging_environment      #checked
-      invoke :setup_secret_token            #checked
-      invoke :configure_app                 #checked
+      invoke :setup_development_environment
+      invoke :setup_test_environment
+      invoke :setup_production_environment
+      invoke :setup_staging_environment
+      invoke :setup_secret_token
+      invoke :configure_app
     #  invoke :create_suspenders_views
     #  invoke :setup_stylesheets
     #  invoke :install_bitters
     #  invoke :install_refills
       invoke :copy_miscellaneous_files
       invoke :customize_error_pages
-      invoke :remove_config_comment_lines  #checked
-      invoke :remove_routes_comment_lines  #checked
+      invoke :remove_config_comment_lines
+      invoke :remove_routes_comment_lines
       invoke :setup_dotfiles
       invoke :setup_git
       invoke :setup_database
@@ -134,7 +134,7 @@ module Suspenders
 
     def setup_production_environment
       say 'Setting up the production environment'
-    #  build :configure_newrelic
+      build :configure_newrelic
       build :configure_smtp
       build :configure_rack_timeout
       build :enable_rack_canonical_host
