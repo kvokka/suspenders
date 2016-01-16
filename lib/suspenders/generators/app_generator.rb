@@ -84,7 +84,7 @@ module Suspenders
       if options[:user_gems]
         build :users_gems
       else
-        build :user_gems_from_args
+        build :user_gems_from_args_or_default_set
       end
     end
 
@@ -197,7 +197,6 @@ module Suspenders
 
     def git_first_commit
       unless options[:skip_git]
-        say 'Init commit'
         invoke :git_init_commit
       end
     end

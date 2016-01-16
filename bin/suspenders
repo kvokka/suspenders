@@ -12,6 +12,8 @@ GEMPROCLIST  =  Suspenders::AppBuilder.public_instance_methods.map(&:to_s).
                          map{|a| a[4..-5] }.
                          sort
 
+DEFAULT_GEMSET = [:slim, :faker, :guard, :rubocop, :meta_request, :bootstrap3]
+
 if ['-v', '--version'].include? ARGV[0]
   puts Suspenders::VERSION
   exit 0
@@ -22,7 +24,7 @@ elsif ['-h', '--help'].include? ARGV[0]
   puts '  -c        --custom         Custom gems selection'
   puts "Or you can manually can add gems from the list like options\n\n"
 
-  $GEMPROCLIST.map{|a| "--#{a}" }.each_with_index do |g,i|
+  GEMPROCLIST.map{|a| "--#{a}" }.each_with_index do |g,i|
     puts  if i % 4 == 0 && i>1
     print g.ljust(20)
   end
