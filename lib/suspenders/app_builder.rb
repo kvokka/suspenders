@@ -433,6 +433,7 @@ you can deploy to staging and production with:
 
     def setup_spring
       bundle_command "exec spring binstub --all"
+      run 'spring stop'
     end
 
     def copy_miscellaneous_files
@@ -498,98 +499,72 @@ end
 
     def users_gems
       @@user_choice = []
-        choose_frontend
         choose_template_engine
-        rails_db_gem
-        faker_gem
-        meta_request_gem
-        rubocop_gem
-        guard_gem
-        bundler_audit_gem
+        choose_frontend
         # Placeholder for other gem additions
 
+        choose_undroup_gems
         ask_cleanup_commens
         users_init_commit_choice
         add_user_gems
-        delete_comments
     end
 
     def user_gems_from_args
       gems_flags = []
       options.each{ |k,v| gems_flags.push k if v == true }
       gems= $GEMPROCLIST & gems_flags
-      gems.each { |i| build "add_#{i}_gem".to_sym }
+      gems.each{ |g| @@user_choice << g }
+      add_user_gems
     end
 
 # ------------------------------------ step2
 
     def choose_frontend
-      variants = { none: 'No front-end add-ons', normalize: 'Normalize', bootstrap3: 'Twitter bootstrap v.3' }
-      multiple_choice('Write numbers of all preferred styling gems.', variants).each do |gem|
+      variants = { none: 'No front-end framework',
+                   bootstrap3_sass: 'Twitter bootstrap v.3 sass',
+                   bootstrap3: 'Twitter bootstrap v.3 asset pipeline',
+                    }
+        gem = choice 'Select front-end framework: ', variants
+        @@user_choice.push(gem) if gem
+    end
+
+    def choose_template_engine
+      variants = { none: 'Erb', slim: 'Slim', haml: 'Haml' }
+        gem = choice 'Select markup language: ', variants
+        @@user_choice.push(gem) if gem
+    end
+
+    def choose_undroup_gems
+      variants = { none: 'None',
+                   rails_db: 'For pretty view in browser & xls export for models',
+                   faker: 'Gem for generate fake data in testing',
+                   rubocop: 'Code inspector and code formatting tool',
+                   guard: 'Guard (with livereload) and dependences',
+                   bundler_audit: 'Extra possibilities for gems version control',
+                   meta_request: "Rails meta panel in chrome console. Very usefull in AJAX debugging.\n#{' '*24}Link for chrome add-on in Gemfile.\n#{' '*24}Do not delete comments if you need this link",
+                    }
+      multiple_choice('Write numbers of all preferred gems.', variants).each do |gem|
         @@user_choice.push gem
       end
     end
-    def normalize_gem;end
-    def bootstrap3_gem;end
 
-    def choose_template_engine
-      unless options[:slim] || options[:haml]
-        variants = { none: 'Erb', slim: 'Slim', haml: 'Haml' }
-        @@user_choice.push choice 'Select template engine: ', variants
-      end
-    end
-    def slim_gem;end;
-    def haml_gem;end;
-
-    def meta_request_gem
-      gem_name = __callee__.to_s.gsub(/_gem/, '')
-      gem_description = <<-TEXT
-Rails meta panel in chrome console. Very usefull in AJAX debugging.
-    Save link for chrome add-on. (or get it in Gemfile)
-    https://chrome.google.com/webstore/detail/railspanel/gjpfobpafnhjhbajcjgccbbdofdckggg
-      TEXT
-      @@user_choice.push( yes_no_question( gem_name, gem_description)) unless options[gem_name]
-    end
-
-    def rails_db_gem
-      gem_name = __callee__.to_s.gsub(/_gem/, '')
-      gem_description = 'For pretty view in browser & xls export for models'
-      @@user_choice.push( yes_no_question( gem_name, gem_description)) unless options[gem_name]
-    end
-
-    def faker_gem
-      gem_name = __callee__.to_s.gsub(/_gem/, '')
-      gem_description = 'Gem for generate fake data in testing'
-      @@user_choice.push( yes_no_question( gem_name, gem_description)) unless options[gem_name]
-    end
-
-    def rubocop_gem
-      gem_name = __callee__.to_s.gsub(/_gem/, '')
-      gem_description = 'Code inspector and code formatting tool'
-      @@user_choice.push( yes_no_question( gem_name, gem_description)) unless options[gem_name]
-    end
-
-    def guard_gem
-      gem_name = __callee__.to_s.gsub(/_gem/, '')
-      gem_description = 'Guard (with livereliad) and dependences'
-      @@user_choice.push( yes_no_question( gem_name, gem_description)) unless options[gem_name]
-    end
-
-    def bundler_audit_gem
-      gem_name = __callee__.to_s.gsub(/_gem/, '')
-      gem_description = 'Extra possibilities for gems version control'
-      @@user_choice.push( yes_no_question( gem_name, gem_description)) unless options[gem_name]
-    end
+    # def bundler_audit_gem
+    #   gem_name = __callee__.to_s.gsub(/_gem/, '')
+    #   gem_description = 'Extra possibilities for gems version control'
+    #   @@user_choice.push( yes_no_question( gem_name, gem_description)) unless options[gem_name]
+    # end
 
     def users_init_commit_choice
       variants = { none: 'No', gitcommit: 'Yes' }
-      @@user_choice.push choice 'Make init commit in the end? ', variants
+      sel = choice 'Make init commit in the end? ', variants
+      @@user_choice.push( sel) unless sel == :none
     end
 
     def ask_cleanup_commens
       unless options[:clean_comments]
-        variants = { none: 'No', clean_commens: 'Yes' }
-        @@user_choice.push choice 'Delete comments in Gemfile, routes.rb & config files? ', variants
+        variants = { none: 'No', clean_comments: 'Yes' }
+        sel = choice 'Delete comments in Gemfile, routes.rb & config files? ', variants
+        @@user_choice.push( sel) unless sel == :none
       end
     end
 
@@ -633,37 +608,36 @@ Rails meta panel in chrome console. Very usefull in AJAX debugging.
       inject_into_file('Gemfile', "\n  gem 'faker'", after: 'group :test do')
     end
 
-    def add_normalize_gem
-      inject_into_file('Gemfile', "\n  gem 'normalize-rails', '~> 3.0.0'", after: '# user_choice')
-    end
-
     def add_bundler_audit_gem
       copy_file "bundler_audit.rake", "lib/tasks/bundler_audit.rake"
       append_file "Rakefile", %{\ntask default: "bundler:audit"\n}
     end
 
-    def bootstrap3
-      inject_into_file('Gemfile', "\n  gem 'bootstrap-sass', '~> 3.3.6'", after: '# user_choice')
+    def add_bootstrap3_sass_gem
+      inject_into_file('Gemfile', "\ngem 'bootstrap-sass', '~> 3.3.6'", after: '# user_choice')
+    end
+
+    def add_bootstrap3_gem
+      inject_into_file('Gemfile', "\ngem 'twitter-bootstrap-rails'", after: '# user_choice')
     end
 
 # ------------------------------------ step4
 
     def add_user_gems
-      add_haml_gem           if @@user_choice.include? :haml
-      add_slim_gem           if @@user_choice.include? :slim
-      add_rails_db_gem       if @@user_choice.include? :rails_db
-      add_faker_gem          if @@user_choice.include? :faker
-      add_meta_request_gem   if @@user_choice.include? :meta_request
-      add_rubocop_gem        if @@user_choice.include? :rubocop
-      add_guard_gem          if @@user_choice.include? :guard
-      add_guard_rubocop_gem  if @@user_choice.include?(:guard) && @@user_choice.include?(:rubocop)
-      add_bundler_audit_gem  if @@user_choice.include? :bundler_audit
-      add_normalize_gem      if @@user_choice.include? :normalize
+      $GEMPROCLIST.each {|g| send "add_#{g}_gem" if  @@user_choice.include? g.to_sym }
+      add_guard_rubocop_gem      if @@user_choice.include?(:guard) && @@user_choice.include?(:rubocop) && !options[:guard_rubocop]
     end
 
     def post_init
-      app_file = 'app/assets/stylesheets/application.scss'
+      app_file_scss = 'app/assets/stylesheets/application.scss'
+      app_file_css = 'app/assets/stylesheets/application.css'
       js_file = 'app/assets/javascripts/application.js'
+      if @@user_choice.include?(:bootstrap3_sass)
+        setup_stylesheets
+        use_asset_pipelline = false
+      else
+        use_asset_pipelline = true
+      end
       run 'guard init' if @@user_choice.present? && @@user_choice.include?(:guard)
       if @@user_choice.include? :rubocop
         t=<<-TEXT
@@ -672,11 +646,24 @@ RuboCop::RakeTask.new
         TEXT
         append_file 'Rakefile', t
       end
-      append_file(app_file, "\n@import 'normalize-rails';") if @@user_choice.include? :normalize
-      if @@user_choice.include? :bootstrap3
-        append_file(app_file, "\n@import 'bootstrap-sprockets';\n@import 'bootstrap';")
-        inject_into_file(js_file, "\n//= require bootstrap-sprockets", after: '//= require jquery')
+      if @@user_choice.include? :bootstrap3_sass
+          append_file(app_file_scss, "\n@import 'bootstrap-sprockets';\n@import 'bootstrap';")
+          inject_into_file(js_file, "\n//= require bootstrap-sprockets", after: "//= require jquery_ujs")
+          bundle_command "exec rails generate simple_form:install --bootstrap"
       end
+      if @@user_choice.include? :bootstrap3
+          remove_file 'app/views/layouts/application.html.erb'
+          generate 'bootstrap:install static'
+          generate 'bootstrap:layout'
+          bundle_command "exec rails generate simple_form:install --bootstrap"
+      end
+
+      if use_asset_pipelline
+        inject_into_file(app_file_css, " *= require normalize-rails\n", after: " * file per style scope.\n *\n")
+      else
+        inject_into_file(app_file_scss, "\n@import 'normalize-rails';", after: '@charset "utf-8";')
+      end
+      delete_comments
     end
 
     private
@@ -688,14 +675,16 @@ RuboCop::RakeTask.new
     end
 
     def choice(selector, variants)
-      values = []
-      say "\n  \033[1m\033[36m#{selector}\033[0m"
-      variants.each_with_index do |variant, i|
-        values.push variant[0]
-        say "#{i.to_s.rjust(10)}. #{variant[1]}"
+      unless variants.keys[1..-1].map{|a| options[a]}.include? true
+        values = []
+        say "\n  \033[1m\033[36m#{selector}\033[0m"
+        variants.each_with_index do |variant, i|
+          values.push variant[0]
+          say "#{i.to_s.rjust(5)}. #{variant[1]}"
+        end
+        answer = ask "\033[1m\033[36m  Enter choice: \033[0m".rjust(10) until (0...variants.length).map(&:to_s).include? answer
+        values[answer.to_i] == :none ? nil : values[answer.to_i]
       end
-      answer = ask "\033[1m\033[36m  Enter choice: \033[0m".rjust(10) until (0...variants.length).map(&:to_s).include? answer
-      values[answer.to_i]
     end
 
     def multiple_choice(selector, variants)
@@ -704,10 +693,10 @@ RuboCop::RakeTask.new
       say "\n  \033[1m\033[36m#{selector} Use space as separator\033[0m"
       variants.each_with_index do |variant, i|
         values.push variant[0]
-        say "#{i.to_s.rjust(10)}. #{variant[1]}"
+        say "#{i.to_s.rjust(5)}. \033[1m\033[34m#{variant[0].to_s.ljust(15)}-\033[0m #{variant[1]}"
       end
       loop do
-        answers = (ask "\033[1m\033[36m  Enter choice: \033[0m".rjust(10)).split ' '
+        answers = (ask "\033[1m\033[36m  Enter choices: \033[0m".rjust(10)).split ' '
         break if (answers.any?) && (answers - (0...variants.length).to_a.map(&:to_s)).empty?
       end
       answers.delete '0'

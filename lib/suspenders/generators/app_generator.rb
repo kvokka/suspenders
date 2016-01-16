@@ -54,7 +54,7 @@ module Suspenders
       invoke :setup_secret_token            #checked
       invoke :configure_app                 #checked
     #  invoke :create_suspenders_views
-      invoke :setup_stylesheets
+    #  invoke :setup_stylesheets
     #  invoke :install_bitters
     #  invoke :install_refills
       invoke :copy_miscellaneous_files
@@ -81,8 +81,11 @@ module Suspenders
     end
 
     def custom_gems_setup
-      build :user_gems_from_args
-      build :users_gems if options[:user_gems]
+      if options[:user_gems]
+        build :users_gems
+      else
+        build :user_gems_from_args
+      end
     end
 
     def bundleinstall
@@ -169,10 +172,10 @@ module Suspenders
       build :set_up_forego
     end
 
-    def setup_stylesheets
-      say 'Set up stylesheets'
-      build :setup_stylesheets
-    end
+    # def setup_stylesheets
+    #   say 'Set up stylesheets'
+    #   build :setup_stylesheets
+    # end
 
     # def install_bitters
     #   say 'Install Bitters'

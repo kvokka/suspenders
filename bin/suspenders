@@ -8,8 +8,8 @@ $LOAD_PATH << source_path
 require 'suspenders'
 $GEMPROCLIST  =  Suspenders::AppBuilder.public_instance_methods.map(&:to_s).
                          grep(/_gem$/).
-                         grep_v(/add_/).
-                         map{|a| a[0..-5] }.
+                         grep(/^add_/).
+                         map{|a| a[4..-5] }.
                          sort
 
 if ['-v', '--version'].include? ARGV[0]
