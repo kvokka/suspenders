@@ -8,10 +8,10 @@ Style/StringLiterals:
   ConsistentQuotesInMultiline: true
 Metrics/ClassLength:
   CountComments: false
-  Max: 1000
+  Max: 500
 Metrics/ModuleLength:
   CountComments: false
-  Max: 1000
+  Max: 500
 Lint/EndAlignment:
   AutoCorrect: true
 Lint/DefEndAlignment:

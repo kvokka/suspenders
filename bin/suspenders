@@ -6,7 +6,7 @@ source_path = (Pathname.new(__FILE__).dirname + '../lib').expand_path
 $LOAD_PATH << source_path
 
 require 'suspenders'
-$GEMPROCLIST  =  Suspenders::AppBuilder.public_instance_methods.map(&:to_s).
+GEMPROCLIST  =  Suspenders::AppBuilder.public_instance_methods.map(&:to_s).
                          grep(/_gem$/).
                          grep(/^add_/).
                          map{|a| a[4..-5] }.

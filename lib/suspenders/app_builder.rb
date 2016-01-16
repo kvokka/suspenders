@@ -512,7 +512,7 @@ end
     def user_gems_from_args
       gems_flags = []
       options.each{ |k,v| gems_flags.push k if v == true }
-      gems= $GEMPROCLIST & gems_flags
+      gems= GEMPROCLIST & gems_flags
       gems.each{ |g| @@user_choice << g }
       add_user_gems
     end
@@ -584,6 +584,7 @@ end
 
     def add_rubocop_gem
       inject_into_file('Gemfile', "\n  gem 'rubocop', require: false", after: 'group :development do')
+      copy_file "templates/.rubocop.yml", ".rubocop.yml"
     end
 
 
@@ -624,7 +625,7 @@ end
 # ------------------------------------ step4
 
     def add_user_gems
-      $GEMPROCLIST.each {|g| send "add_#{g}_gem" if  @@user_choice.include? g.to_sym }
+      GEMPROCLIST.each {|g| send "add_#{g}_gem" if  @@user_choice.include? g.to_sym }
       add_guard_rubocop_gem      if @@user_choice.include?(:guard) && @@user_choice.include?(:rubocop) && !options[:guard_rubocop]
     end
 

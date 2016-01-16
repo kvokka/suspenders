@@ -31,7 +31,7 @@ module Suspenders
       class_option :clean_comments, type: :boolean, aliases: "--clean_comments", default: false,
         desc: "Clean up comments in config & routes files"
 
-      $GEMPROCLIST.each do |g|
+      GEMPROCLIST.each do |g|
         class_option g.to_sym, type: :boolean, aliases: "--#{g}", default: false,
         desc: "#{g.humanize} gem install"
       end
