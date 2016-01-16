@@ -1,10 +1,16 @@
 #!/usr/bin/env ruby
 require 'pathname'
 
+
 source_path = (Pathname.new(__FILE__).dirname + '../lib').expand_path
 $LOAD_PATH << source_path
 
 require 'suspenders'
+$GEMPROCLIST  =  Suspenders::AppBuilder.public_instance_methods.map(&:to_s).
+                         grep(/_gem$/).
+                         grep_v(/add_/).
+                         map{|a| a[0..-5] }.
+                         sort
 
 if ['-v', '--version'].include? ARGV[0]
   puts Suspenders::VERSION
@@ -16,7 +22,11 @@ elsif ['-h', '--help'].include? ARGV[0]
   puts '  -c        --custom         Custom gems selection'
   puts "Or you can manually can add gems from the list like options\n\n"
 
-  puts Suspenders::AppBuilder.public_instance_methods.map(&:to_s).grep(/_gem$/).grep_v(/add_/).map{|a| "--#{a[0..-5]}" }.sort.join('    ')
+  $GEMPROCLIST.map{|a| "--#{a}" }.each_with_index do |g,i|
+    puts  if i % 4 == 0 && i>1
+    print g.ljust(20)
+  end
+  puts
   exit 0
 end
 
@@ -25,3 +35,4 @@ Suspenders::AppGenerator.source_root templates_root
 Suspenders::AppGenerator.source_paths << Rails::Generators::AppGenerator.source_root << templates_root
 
 Suspenders::AppGenerator.start
+

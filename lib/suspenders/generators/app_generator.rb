@@ -1,6 +1,5 @@
 require 'rails/generators'
 require 'rails/generators/rails/app/app_generator'
-require 'pry'
 module Suspenders
   class AppGenerator < Rails::Generators::AppGenerator
 
@@ -29,14 +28,15 @@ module Suspenders
       class_option :user_gems, type: :boolean, aliases: "-c", default: false,
         desc: "Ask user for gem choice"
 
-      Suspenders::AppBuilder.public_instance_methods.map(&:to_s).grep(/_gem$/).grep_v(/add_/).map{|a| a[0..-5] }.sort.each do |g|
+      class_option :clean_comments, type: :boolean, aliases: "--clean_comments", default: false,
+        desc: "Clean up comments in config & routes files"
+
+      $GEMPROCLIST.each do |g|
         class_option g.to_sym, type: :boolean, aliases: "--#{g}", default: false,
         desc: "#{g.humanize} gem install"
-      end    
+      end
       super
     end
-
-
 
     def finish_template
       invoke :suspenders_customization
@@ -47,27 +47,26 @@ module Suspenders
       invoke :customize_gemfile
       invoke :custom_gems_setup
       invoke :bundleinstall
-      invoke :setup_development_environment
-      invoke :setup_test_environment
-      invoke :setup_production_environment
-      invoke :setup_staging_environment
-      invoke :setup_secret_token
-      invoke :create_suspenders_views
-      invoke :configure_app
+      invoke :setup_development_environment  #checked
+      invoke :setup_test_environment        #checked
+      invoke :setup_production_environment    #checked
+      invoke :setup_staging_environment      #checked
+      invoke :setup_secret_token            #checked
+      invoke :configure_app                 #checked
+    #  invoke :create_suspenders_views
       invoke :setup_stylesheets
-      invoke :install_bitters
-      invoke :install_refills
+    #  invoke :install_bitters
+    #  invoke :install_refills
       invoke :copy_miscellaneous_files
       invoke :customize_error_pages
-      invoke :remove_config_comment_lines
-      invoke :remove_routes_comment_lines
+      invoke :remove_config_comment_lines  #checked
+      invoke :remove_routes_comment_lines  #checked
       invoke :setup_dotfiles
       invoke :setup_git
       invoke :setup_database
       invoke :create_heroku_apps
       invoke :create_github_repo
       invoke :setup_segment
-      invoke :setup_bundler_audit
       invoke :setup_spring
       invoke :post_init
       invoke :git_first_commit
@@ -82,6 +81,7 @@ module Suspenders
     end
 
     def custom_gems_setup
+      build :user_gems_from_args
       build :users_gems if options[:user_gems]
     end
 
@@ -116,14 +116,14 @@ module Suspenders
       say 'Setting up the test environment'
       build :set_up_factory_girl_for_rspec
       build :generate_factories_file
-      build :set_up_hound
+    #  build :set_up_hound
       build :generate_rspec
       build :configure_rspec
       build :configure_background_jobs_for_rspec
       build :enable_database_cleaner
       build :provide_shoulda_matchers_config
       build :configure_spec_support_features
-      build :configure_ci
+    #  build :configure_ci
       build :configure_i18n_for_test_environment
       build :configure_action_mailer_in_specs
       build :configure_capybara_webkit
@@ -131,7 +131,7 @@ module Suspenders
 
     def setup_production_environment
       say 'Setting up the production environment'
-      build :configure_newrelic
+    #  build :configure_newrelic
       build :configure_smtp
       build :configure_rack_timeout
       build :enable_rack_canonical_host
@@ -149,13 +149,13 @@ module Suspenders
       build :setup_secret_token
     end
 
-    def create_suspenders_views
-      say 'Creating suspenders views'
-      build :create_partials_directory
-      build :create_shared_flashes
-      build :create_shared_javascripts
-      build :create_application_layout
-    end
+    # def create_suspenders_views
+    #   say 'Creating suspenders views'
+    #   build :create_partials_directory
+    #   build :create_shared_flashes
+    #   build :create_shared_javascripts
+    #   build :create_application_layout
+    # end
 
     def configure_app
       say 'Configuring app'
@@ -174,15 +174,15 @@ module Suspenders
       build :setup_stylesheets
     end
 
-    def install_bitters
-      say 'Install Bitters'
-      build :install_bitters
-    end
+    # def install_bitters
+    #   say 'Install Bitters'
+    #   build :install_bitters
+    # end
 
-    def install_refills
-      say "Install Refills"
-      build :install_refills
-    end
+    # def install_refills
+    #   say "Install Refills"
+    #   build :install_refills
+    # end
 
     def setup_git
       unless options[:skip_git]
@@ -238,11 +238,6 @@ module Suspenders
       build :git_init_commit
     end
 
-    def setup_bundler_audit
-      say "Setting up bundler-audit"
-      build :setup_bundler_audit
-    end
-
     def setup_spring
       say "Springifying binstubs"
       build :setup_spring
@@ -263,11 +258,11 @@ module Suspenders
     end
 
     def remove_config_comment_lines
-      build :remove_config_comment_lines
+      build :remove_config_comment_lines if options[:clean_comments] == true
     end
 
     def remove_routes_comment_lines
-      build :remove_routes_comment_lines
+      build :remove_routes_comment_lines if options[:clean_comments] == true
     end
 
     def outro
