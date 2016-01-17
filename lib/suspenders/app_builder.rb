@@ -558,6 +558,7 @@ end
 
     def choose_undroup_gems
       variants = { none:          'None',
+                   will_paginate: 'Easy pagination implement',
                    rails_db:      'For pretty view in browser & xls export for models',
                    faker:         'Gem for generate fake data in testing',
                    rubocop:       'Code inspector and code formatting tool',
@@ -675,6 +676,14 @@ end
 
       inject_into_file('app/controllers/application_controller.rb', devise_conf,
                        after: 'protect_from_forgery with: :exception')
+    end
+
+    def add_will_paginate_gem
+      inject_into_file('Gemfile', "\ngem 'will_paginate', '~> 3.0.6'",
+                       after: '# user_choice')
+      inject_into_file('Gemfile', "\ngem 'will_paginate-bootstrap'",
+                       after: '# user_choice') if @@user_choice.include?(:bootstrap3) ||
+                                                  @@user_choice.include?(:bootstrap3_sass)
     end
 
     # ------------------------------------ step4
