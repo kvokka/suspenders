@@ -506,6 +506,7 @@ end
 
     def users_gems
       @@user_choice = []
+      choose_authenticate_engine
       choose_template_engine
       choose_frontend
       # Placeholder for other gem additions
@@ -542,6 +543,16 @@ end
     def choose_template_engine
       variants = { none: 'Erb', slim: 'Slim', haml: 'Haml' }
       gem = choice 'Select markup language: ', variants
+      @@user_choice.push(gem) if gem
+    end
+
+    def choose_authenticate_engine
+      variants = { none: 'None', devise: 'devise', devise_with_model: 'devise vs pre-installed model' }
+      gem = choice 'Select authenticate engine: ', variants
+      if gem == :devise_with_model
+        @@devise_model = ask_stylish 'Enter devise model name:'
+        gem = :devise
+      end
       @@user_choice.push(gem) if gem
     end
 
@@ -638,6 +649,32 @@ end
     def add_bootstrap3_gem
       inject_into_file('Gemfile', "\ngem 'twitter-bootstrap-rails'",
                        after: '# user_choice')
+      inject_into_file('Gemfile', "\ngem 'devise-bootstrap-views'",
+                       after: '# user_choice')
+    end
+
+    def add_devise_gem
+      devise_conf = <<-TEXT
+
+  protected :configure_permitted_parameters
+
+  def configure_permitted_parameters
+    devise_parameter_sanitizer.permit(:sign_in) do |user_params|
+      user_params.permit(:username, :email)
+    end
+
+    devise_parameter_sanitizer.permit(:sign_up) do |user_params|
+      user_params.permit(:email, :password, :password_confirmation)
+    end
+  end
+    TEXT
+      inject_into_file('Gemfile', "\ngem 'devise'", after: '# user_choice')
+      inject_into_file('app/controllers/application_controller.rb',
+                       "\nbefore_action :configure_permitted_parameters, if: :devise_controller?",
+                       after: 'class ApplicationController < ActionController::Base')
+
+      inject_into_file('app/controllers/application_controller.rb', devise_conf,
+                       after: 'protect_from_forgery with: :exception')
     end
 
     # ------------------------------------ step4
@@ -653,17 +690,31 @@ end
     end
 
     def post_init
-      app_file_scss = 'app/assets/stylesheets/application.scss'
-      app_file_css = 'app/assets/stylesheets/application.css'
-      js_file = 'app/assets/javascripts/application.js'
-      if @@user_choice.include?(:bootstrap3_sass)
-        setup_stylesheets
-        use_asset_pipelline = false
-      else
-        use_asset_pipelline = true
+      @@app_file_scss = 'app/assets/stylesheets/application.scss'
+      @@app_file_css = 'app/assets/stylesheets/application.css'
+      @@js_file = 'app/assets/javascripts/application.js'
+      install_queue = [:guard, :guard_rubocop, :bootstrap3_sass, :bootstrap3,
+                       :devise, :normalize, :rubocop]
+      install_queue.each { |q| send "after_install_#{q}" }
+      delete_comments
+    end
+
+    def after_install_devise
+      run 'rails generate devise:install' if @@user_choice.include? :devise
+      if @@user_choice.include?(:devise) && !@@devise_model.empty?
+        run "rails generate devise #{@@devise_model.titleize}"
+        inject_into_file('app/controllers/application_controller.rb',
+                         "\nbefore_action :authenticate_user!",
+                         after: 'before_action :configure_permitted_parameters, if: :devise_controller?')
       end
-      run 'guard init' if @@user_choice.present? &&
-                          @@user_choice.include?(:guard)
+      if @@user_choice.include?(:bootstrap3)
+        generate 'devise:views:bootstrap_templates'
+      else
+        generate 'devise:views'
+      end
+    end
+
+    def after_install_rubocop
       if @@user_choice.include? :rubocop
         t = <<-TEXT
 require 'rubocop/rake_task'
@@ -672,34 +723,59 @@ RuboCop::RakeTask.new
         append_file 'Rakefile', t
         run 'rubocop -a'
       end
+    end
+
+    def after_install_guard
+      run 'guard init' if @@user_choice.include?(:guard)
+    end
+
+    def after_install_guard_rubocop
+      if @@user_choice.include?(:guard) && @@user_choice.include?(:rubocop)
+        replace_in_file 'Guardfile',
+                        'guard :rubocop do',
+                        "guard :rubocop, all_on_start: true, cli: ['--auto-correct'] do"
+      end
+    end
+
+    def after_install_bootstrap3_sass
       if @@user_choice.include? :bootstrap3_sass
-        append_file(app_file_scss,
+        setup_stylesheets
+        @@use_asset_pipelline = false
+        append_file(@@app_file_scss,
                     "\n@import 'bootstrap-sprockets';\n@import 'bootstrap';")
-        inject_into_file(js_file, "\n//= require bootstrap-sprockets",
+        inject_into_file(@@js_file, "\n//= require bootstrap-sprockets",
                          after: '//= require jquery_ujs')
         bundle_command 'exec rails generate simple_form:install --bootstrap'
       end
+    end
+
+    def after_install_bootstrap3
       if @@user_choice.include? :bootstrap3
+        @@use_asset_pipelline = true
         remove_file 'app/views/layouts/application.html.erb'
         generate 'bootstrap:install static'
         generate 'bootstrap:layout'
         bundle_command 'exec rails generate simple_form:install --bootstrap'
+        inject_into_file('app/assets/stylesheets/bootstrap_and_overrides.css',
+                         "  =require devise_bootstrap_views\n",
+                         before: '  */')
       end
+    end
 
-      if use_asset_pipelline
-        inject_into_file(app_file_css, " *= require normalize-rails\n",
+    def after_install_normalize
+      if @@use_asset_pipelline
+        inject_into_file(@@app_file_css, " *= require normalize-rails\n",
                          after: " * file per style scope.\n *\n")
       else
-        inject_into_file(app_file_scss, "\n@import 'normalize-rails';",
+        inject_into_file(@@app_file_scss, "\n@import 'normalize-rails';",
                          after: '@charset "utf-8";')
       end
-      delete_comments
     end
 
     private
 
       def yes_no_question(gem_name, gem_description)
-        gem_name_color = "\033[33m#{gem_name.capitalize}.\033[0m\n"
+        gem_name_color = "#{gem_name.capitalize}.\n"
         variants = { none: 'No', gem_name.to_sym => gem_name_color }
         choice "Use #{gem_name}? #{gem_description}", variants
       end
@@ -707,13 +783,13 @@ RuboCop::RakeTask.new
       def choice(selector, variants)
         unless variants.keys[1..-1].map { |a| options[a] }.include? true
           values = []
-          say "\n  \033[1m\033[36m#{selector}\033[0m"
+          say "\n  #{BOLDGREEN}#{selector}#{COLOR_OFF}"
           variants.each_with_index do |variant, i|
             values.push variant[0]
-            say "#{i.to_s.rjust(5)}. #{variant[1]}"
+            say "#{i.to_s.rjust(5)}. #{BOLDBLUE}#{variant[1]}#{COLOR_OFF}"
           end
-          answer = ask "\033[1m\033[36m  Enter choice: \033[0m"
-                   .rjust(10) until (0...variants.length).map(&:to_s).include? answer
+          answer = ask_stylish('Enter choice:') until (0...variants.length)
+                                                      .map(&:to_s).include? answer
           values[answer.to_i] == :none ? nil : values[answer.to_i]
         end
       end
@@ -722,15 +798,14 @@ RuboCop::RakeTask.new
         values = []
         result = []
         answers = ''
-        say "\n  \033[1m\033[36m#{selector} Use space as separator\033[0m"
+        say "\n  #{BOLDGREEN}#{selector} Use space as separator#{COLOR_OFF}"
         variants.each_with_index do |variant, i|
           values.push variant[0]
-          say "#{i.to_s.rjust(5)}. \033[1m\033[34m#{variant[0]
-                .to_s.ljust(15)}-\033[0m #{variant[1]}"
+          say "#{i.to_s.rjust(5)}. #{BOLDBLUE}#{variant[0]
+                .to_s.ljust(15)}-#{COLOR_OFF} #{variant[1]}"
         end
         loop do
-          answers = (ask "\033[1m\033[36m  Enter choices: \033[0m".rjust(10))
-                    .split ' '
+          answers = ask_stylish('Enter choices:').split ' '
           break if answers.any? && (answers - (0...variants.length)
                   .to_a.map(&:to_s)).empty?
         end
@@ -739,9 +814,12 @@ RuboCop::RakeTask.new
         result
       end
 
+      def ask_stylish(str)
+        ask "#{BOLDGREEN}  #{str} #{COLOR_OFF}".rjust(10)
+      end
+
       def raise_on_missing_translations_in(environment)
         config = 'config.action_view.raise_on_missing_translations = true'
-
         uncomment_lines("config/environments/#{environment}.rb", config)
       end
 
@@ -762,11 +840,11 @@ RuboCop::RakeTask.new
 
       def cleanup_comments(file)
         accepted_content = File.readlines(file).reject do |line|
-          line =~ /^.*#.*$/ || line =~ /^$\n/
+          line =~ /^\s*#.*$/ || line =~ /^$\n/
         end
 
-        File.open(file, 'w') do |file|
-          accepted_content.each { |line| file.puts line }
+        File.open(file, 'w') do |f|
+          accepted_content.each { |line| f.puts line }
         end
       end
 

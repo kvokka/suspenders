@@ -1,9 +1,30 @@
-# Suspenders [![Build Status](https://secure.travis-ci.org/thoughtbot/suspenders.svg?branch=master)](http://travis-ci.org/thoughtbot/suspenders)
+# Suspenders
 
-Suspenders is the base Rails application used at
-[thoughtbot](https://thoughtbot.com/).
+![Suspenders boy](http://media.tumblr.com/1TEAMALpseh5xzf0Jt6bcwSMo1_400.png)
 
-  ![Suspenders boy](http://media.tumblr.com/1TEAMALpseh5xzf0Jt6bcwSMo1_400.png)
+## About
+
+Fork from thoughtbot/suspenders
+Implemented function of user choice gems installation with all their settings,
+so you can use fully working application with all needed installed and
+configured from the box
+
+This user gem pack are available for installation
+
+ * bootstrap3
+ * bootstrap3_sass
+ * bundler_audit
+ * faker
+ * guard
+ * guard_rubocop
+ * slim
+ * haml
+ * meta_request
+ * rails_db
+ * rubocop
+ * devise
+ * devise-bootstrap-views
+
 
 ## Installation
 
@@ -17,17 +38,18 @@ Then run:
 
 This will create a Rails app in `projectname` using the latest version of Rails.
 
-### Associated services
+    suspenders projectname -c
 
-* Enable [Circle CI](https://circleci.com/) Continuous Integration
-* Enable [GitHub auto deploys to Heroku staging and review
-    apps](https://dashboard.heroku.com/apps/app-name-staging/deploy/github).
+This will provide a dialog, where you can select needed gems, also you can add
+it with gemname flag, after app_name, like `suspenders projectname --slim`.
+
+*NB: if you install custom gems, default user gem pack will not be installed.
 
 ## Gemfile
 
 To see the latest and greatest gems, look at Suspenders'
 [Gemfile](templates/Gemfile.erb), which will be appended to the default
-generated projectname/Gemfile.
+generated projectname/Gemfile. This gem will be installed anyway.
 
 It includes application gems like:
 
@@ -99,25 +121,15 @@ Suspenders also comes with:
 * [t() and l() in specs without prefixing with I18n][i18n]
 * An automatically-created `SECRET_KEY_BASE` environment variable in all
   environments
-* Configuration for [CircleCI][circle] Continuous Integration (tests)
-* Configuration for [Hound][hound] Continuous Integration (style)
 * The analytics adapter [Segment][segment] (and therefore config for Google
   Analytics, Intercom, Facebook Ads, Twitter Ads, etc.)
 
-[setup]: https://robots.thoughtbot.com/bin-setup
-[compress]: https://robots.thoughtbot.com/content-compression-with-rack-deflater
-[pool]: https://devcenter.heroku.com/articles/concurrency-and-database-connections
-[binstub]: https://github.com/thoughtbot/suspenders/pull/282
-[i18n]: https://github.com/thoughtbot/suspenders/pull/304
-[circle]: https://circleci.com/docs
-[hound]: https://houndci.com
-[segment]: https://segment.com
 
 ## Heroku
 
 You can optionally create Heroku staging and production apps:
 
-    suspenders app --heroku true
+    suspenders app  * heroku true
 
 This:
 
@@ -137,8 +149,8 @@ This:
 You can optionally specify alternate Heroku flags:
 
     suspenders app \
-      --heroku true \
-      --heroku-flags "--region eu --addons newrelic,sendgrid,ssl"
+       * heroku true \
+       * heroku-flags " * region eu  * addons newrelic,sendgrid,ssl"
 
 See all possible Heroku flags:
 
@@ -147,9 +159,9 @@ See all possible Heroku flags:
 ## Git
 
 This will initialize a new git repository for your Rails app. You can
-bypass this with the `--skip-git` option:
+bypass this with the ` * skip-git` option:
 
-    suspenders app --skip-git true
+    suspenders app  * skip-git true
 
 ## GitHub
 
@@ -157,7 +169,7 @@ You can optionally create a GitHub repository for the suspended Rails app. It
 requires that you have [Hub](https://github.com/github/hub) on your system:
 
     curl http://hub.github.com/standalone -sLo ~/bin/hub && chmod +x ~/bin/hub
-    suspenders app --github organization/project
+    suspenders app  * github organization/project
 
 This has the same effect as running:
 
@@ -191,37 +203,7 @@ installing QT are
 
 PostgreSQL needs to be installed and running for the `db:create` rake task.
 
-## Issues
-
-If you have problems, please create a
-[GitHub Issue](https://github.com/thoughtbot/suspenders/issues).
-
-## Contributing
-
-See [CONTRIBUTING.md](CONTRIBUTING.md).
-
-Thank you, [contributors]!
-
-[contributors]: https://github.com/thoughtbot/suspenders/graphs/contributors
 
 ## License
 
-Suspenders is Copyright © 2008-2015 thoughtbot.
-It is free software,
-and may be redistributed under the terms specified in the [LICENSE] file.
-
-[LICENSE]: LICENSE
-
-## About thoughtbot
-
-![thoughtbot](https://thoughtbot.com/logo.png)
-
-Suspenders is maintained and funded by thoughtbot, inc.
-The names and logos for thoughtbot are trademarks of thoughtbot, inc.
-
-We love open source software!
-See [our other projects][community].
-We are [available for hire][hire].
-
-[community]: https://thoughtbot.com/community?utm_source=github
-[hire]: https://thoughtbot.com?utm_source=github
+MIT Licence

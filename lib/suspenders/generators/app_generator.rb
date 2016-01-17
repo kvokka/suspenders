@@ -62,12 +62,12 @@ module Suspenders
       invoke :remove_routes_comment_lines
       invoke :setup_dotfiles
       invoke :setup_git
+      invoke :post_init
       invoke :setup_database
       invoke :create_heroku_apps
       invoke :create_github_repo
       invoke :setup_segment
       invoke :setup_spring
-      invoke :post_init
       invoke :git_first_commit
       invoke :outro
     end
