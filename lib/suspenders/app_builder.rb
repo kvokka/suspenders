@@ -618,6 +618,7 @@ end
 
   gem 'guard'
   gem 'guard-livereload', '~> 2.4', require: false
+  gem 'guard-rails', require: false
       TEXT
       inject_into_file('Gemfile', t, after: 'group :development do')
     end
