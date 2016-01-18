@@ -560,7 +560,7 @@ end
                    rails_db:      'For pretty view in browser & xls export for models',
                    faker:         'Gem for generate fake data in testing',
                    rubocop:       'Code inspector and code formatting tool',
-                   guard:         'Guard (with livereload) and dependences',
+                   guard:         'Guard (with livereload, rails, migrate, bundler) and dependences',
                    bundler_audit: 'Extra possibilities for gems version control',
                    airbrake:      'Airbrake error logging',
                    meta_request:  "Rails meta panel in chrome console. Very usefull in AJAX debugging.\n#{' ' * 24}Link for chrome add-on in Gemfile.\n#{' ' * 24}Do not delete comments if you need this link"
@@ -619,6 +619,8 @@ end
   gem 'guard'
   gem 'guard-livereload', '~> 2.4', require: false
   gem 'guard-rails', require: false
+  gem 'guard-migrate'
+  gem 'guard-bundler', require: false
       TEXT
       inject_into_file('Gemfile', t, after: 'group :development do')
     end
