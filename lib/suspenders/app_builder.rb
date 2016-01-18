@@ -381,7 +381,7 @@ Rack::Timeout.timeout = (ENV["RACK_TIMEOUT"] || 10).to_i
     end
 
     def copy_dotfiles
-      directory('dotfiles', '.')
+      directory 'dotfiles', '.', force: true
     end
 
     def init_git
@@ -566,6 +566,7 @@ end
                    rubocop:       'Code inspector and code formatting tool',
                    guard:         'Guard (with livereload) and dependences',
                    bundler_audit: 'Extra possibilities for gems version control',
+                   airbrake:      'Airbrake error logging',
                    meta_request:  "Rails meta panel in chrome console. Very usefull in AJAX debugging.\n#{' ' * 24}Link for chrome add-on in Gemfile.\n#{' ' * 24}Do not delete comments if you need this link"
                     }
       multiple_choice('Write numbers of all preferred gems.', variants).each do |gem|
@@ -646,6 +647,11 @@ end
 
     def add_bootstrap3_sass_gem
       inject_into_file('Gemfile', "\ngem 'bootstrap-sass', '~> 3.3.6'",
+                       after: '# user_choice')
+    end
+
+    def add_airbrake_gem
+      inject_into_file('Gemfile', "\ngem 'airbrake'",
                        after: '# user_choice')
     end
 
@@ -783,6 +789,11 @@ RuboCop::RakeTask.new
       end
     end
 
+    def show_goodbye_message
+      say 'Congratulations! You just pulled our suspenders.'
+      say_color YELLOW, "Remember to run 'rails generate airbrake' with your API key." if @@user_choice.include? :airbrake
+    end
+
     private
 
       def yes_no_question(gem_name, gem_description)
@@ -825,8 +836,12 @@ RuboCop::RakeTask.new
         result
       end
 
-      def ask_stylish(str)
+      def ask_stylish str
         ask "#{BOLDGREEN}  #{str} #{COLOR_OFF}".rjust(10)
+      end
+
+      def say_color color, str
+        say "#{color}#{str}#{COLOR_OFF}".rjust(4)
       end
 
       def raise_on_missing_translations_in(environment)

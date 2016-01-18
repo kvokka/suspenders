@@ -265,8 +265,7 @@ module Suspenders
     end
 
     def outro
-      say 'Congratulations! You just pulled our suspenders.'
-      say "Remember to run 'rails generate airbrake' with your API key."
+      build :show_goodbye_message
     end
 
     def post_init
