@@ -31,7 +31,7 @@ Style/StringLiteralsInInterpolation:
 NumericLiterals:
   Enabled: false
 Metrics/LineLength:
-  Max: 100
+  Max: 160
 Documentation:
   Enabled: false
 Lint/Debugger:        # Easy deletion of all debugger breakpoints. false for debug

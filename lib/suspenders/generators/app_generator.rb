@@ -45,7 +45,7 @@ module Suspenders
     def suspenders_customization
       invoke :customize_gemfile
       invoke :custom_gems_setup
-      invoke :bundler_stubs_install
+      # invoke :bundler_stubs_install
       invoke :bundleinstall
       invoke :setup_development_environment
       invoke :setup_test_environment
@@ -247,10 +247,10 @@ module Suspenders
       build :init_git
     end
 
-    def bundler_stubs_install
-      say 'Bundler stubs install'
-      build :rvm_bundler_stubs_install
-    end
+    # def bundler_stubs_install
+    #   say 'Bundler stubs install'
+    #   build :rvm_bundler_stubs_install
+    # end
 
     def copy_miscellaneous_files
       say 'Copying miscellaneous support files'

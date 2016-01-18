@@ -19,6 +19,7 @@ module Suspenders
 
     @@devise_model = ''
     @@user_choice  = []
+    @@use_asset_pipelline = true
 
     def readme
       template 'README.md.erb', 'README.md'
@@ -63,18 +64,12 @@ module Suspenders
     end
 
     def raise_on_unpermitted_parameters
-      config = <<-RUBY
-    config.action_controller.action_on_unpermitted_parameters = :raise
-      RUBY
-
+      config = "\n    config.action_controller.action_on_unpermitted_parameters = :raise"
       inject_into_class 'config/application.rb', 'Application', config
     end
 
     def configure_quiet_assets
-      config = <<-RUBY
-    config.quiet_assets = true
-      RUBY
-
+      config = "\n    config.quiet_assets = true"
       inject_into_class 'config/application.rb', 'Application', config
     end
 
@@ -499,12 +494,12 @@ end
       end
     end
 
-    def rvm_bundler_stubs_install
-      if system "rvm -v | grep 'rvm.io'"
-        run 'chmod +x $rvm_path/hooks/after_cd_bundler'
-        run 'bundle install --binstubs=./bundler_stubs'
-      end
-    end
+    # def rvm_bundler_stubs_install
+    #   if system "rvm -v | grep 'rvm.io'"
+    #     run 'chmod +x $rvm_path/hooks/after_cd_bundler'
+    #     run 'bundle install --binstubs=./bundler_stubs'
+    #   end
+    # end
 
     # ------------------------------------ step1
 
@@ -749,9 +744,20 @@ RuboCop::RakeTask.new
 
     def after_install_guard_rubocop
       if @@user_choice.include?(:guard) && @@user_choice.include?(:rubocop)
+        binding.pry
+        cover_def_by 'Guardfile', "guard :rubocop do", 'group :red_green_refactor, halt_on_fail: true do'
+        cover_def_by 'Guardfile', 'guard :rspec, ', 'group :red_green_refactor, halt_on_fail: true do'
+
         replace_in_file 'Guardfile',
                         'guard :rubocop do',
-                        "guard :rubocop, all_on_start: true, cli: ['--auto-correct'] do"
+                        "guard :rubocop, all_on_start: true, cli: ['--auto-correct'] do", quiet_err= true
+        replace_in_file 'Guardfile',
+                        'guard :rspec, cmd: "bundle exec rspec" do',
+                        "guard :rspec, cmd: 'bundle exec rspec', failed_mode: :keep do", quiet_err= true
+
+
+
+
       end
     end
 
@@ -880,6 +886,31 @@ RuboCop::RakeTask.new
           cleanup_comments 'Gemfile'
           remove_config_comment_lines
           remove_routes_comment_lines
+        end
+      end
+
+      # does not recognize variable nesting, but now it does not matter
+      def cover_def_by(file, lookup_str, external_def)
+        expect_end = 0
+        found = false  
+        accepted_content = ''
+        File.readlines(file).each do |line|
+          expect_end += 1 if found && line =~ /\sdo\s/
+          expect_end -= 1 if found && line =~ /(\s+end|^end)/
+          if line =~ Regexp.new(lookup_str)
+            accepted_content += "#{external_def}\n#{line}"
+            expect_end += 1
+            found = true
+          else
+            accepted_content += line
+          end
+          if found && expect_end == 0
+            accepted_content += "\nend"
+            found = false
+          end
+        end
+        File.open(file, 'w') do |f|
+          f.puts accepted_content
         end
       end
   end

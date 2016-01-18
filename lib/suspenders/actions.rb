@@ -1,10 +1,10 @@
 module Suspenders
   module Actions
-    def replace_in_file(relative_path, find, replace)
+    def replace_in_file(relative_path, find, replace, quiet_err= false)
       path = File.join(destination_root, relative_path)
       contents = IO.read(path)
       unless contents.gsub!(find, replace)
-        fail "#{find.inspect} not found in #{relative_path}"
+        fail "#{find.inspect} not found in #{relative_path}" if quiet_err == false
       end
       File.open(path, 'w') { |file| file.write(contents) }
     end
