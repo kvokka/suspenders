@@ -24,6 +24,8 @@ This user gem pack are available for installation
  * rubocop
  * devise
  * devise-bootstrap-views
+ * will_paginate
+ * will_paginate-bootstrap
 
 
 ## Installation

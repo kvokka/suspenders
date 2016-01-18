@@ -17,6 +17,9 @@ module Suspenders
                    :set_heroku_serve_static_files,
                    :set_up_heroku_specific_gems
 
+    @@devise_model = ''
+    @@user_choice  = []
+
     def readme
       template 'README.md.erb', 'README.md'
     end
@@ -505,7 +508,6 @@ end
     # ------------------------------------ step1
 
     def users_gems
-      @@user_choice = []
       choose_authenticate_engine
       choose_template_engine
       choose_frontend
@@ -710,7 +712,7 @@ end
 
     def after_install_devise
       run 'rails generate devise:install' if @@user_choice.include? :devise
-      if @@user_choice.include?(:devise) && !@@devise_model.empty?
+      if !@@devise_model.empty? && @@user_choice.include?(:devise)
         run "rails generate devise #{@@devise_model.titleize}"
         inject_into_file('app/controllers/application_controller.rb',
                          "\nbefore_action :authenticate_user!",
