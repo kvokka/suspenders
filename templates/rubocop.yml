@@ -36,3 +36,6 @@ Documentation:
   Enabled: false
 Lint/Debugger:        # Easy deletion of all debugger breakpoints. false for debug
   Enabled: true
+AllCops:
+  Exclude:
+    - 'bin/**/*'
