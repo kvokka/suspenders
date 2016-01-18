@@ -286,7 +286,7 @@ end
     end
 
     def configure_background_jobs_for_rspec
-      run 'rails g delayed_job:active_record'
+      generate 'delayed_job:active_record'
     end
 
     def configure_action_mailer_in_specs
@@ -303,10 +303,7 @@ end
     end
 
     def configure_rack_timeout
-      rack_timeout_config = <<-RUBY
-Rack::Timeout.timeout = (ENV["RACK_TIMEOUT"] || 10).to_i
-      RUBY
-
+      rack_timeout_config = 'Rack::Timeout.timeout = (ENV["RACK_TIMEOUT"] || 10).to_i'
       append_file 'config/environments/production.rb', rack_timeout_config
     end
 
@@ -328,10 +325,7 @@ Rack::Timeout.timeout = (ENV["RACK_TIMEOUT"] || 10).to_i
     end
 
     def fix_i18n_deprecation_warning
-      config = <<-RUBY
-    config.i18n.enforce_available_locales = true
-      RUBY
-
+      config = '    config.i18n.enforce_available_locales = true'
       inject_into_class 'config/application.rb', 'Application', config
     end
 
@@ -354,7 +348,7 @@ Rack::Timeout.timeout = (ENV["RACK_TIMEOUT"] || 10).to_i
     end
 
     def install_refills
-      run 'rails generate refills:import flashes'
+      generate 'refills:import flashes'
       run 'rm app/views/refills/_flashes.html.erb'
       run 'rmdir app/views/refills'
     end
@@ -502,6 +496,13 @@ if defined? RSpec
   end
 end
         EOS
+      end
+    end
+
+    def rvm_bundler_stubs_install
+      if system "rvm -v | grep 'rvm.io'"
+        run 'chmod +x $rvm_path/hooks/after_cd_bundler'
+        run 'bundle install --binstubs=./bundler_stubs'
       end
     end
 
@@ -717,9 +718,9 @@ end
     end
 
     def after_install_devise
-      run 'rails generate devise:install' if @@user_choice.include? :devise
+      generate 'devise:install' if @@user_choice.include? :devise
       if !@@devise_model.empty? && @@user_choice.include?(:devise)
-        run "rails generate devise #{@@devise_model.titleize}"
+        generate "devise #{@@devise_model.titleize}"
         inject_into_file('app/controllers/application_controller.rb',
                          "\nbefore_action :authenticate_user!",
                          after: 'before_action :configure_permitted_parameters, if: :devise_controller?')
@@ -836,11 +837,11 @@ RuboCop::RakeTask.new
         result
       end
 
-      def ask_stylish str
+      def ask_stylish(str)
         ask "#{BOLDGREEN}  #{str} #{COLOR_OFF}".rjust(10)
       end
 
-      def say_color color, str
+      def say_color(color, str)
         say "#{color}#{str}#{COLOR_OFF}".rjust(4)
       end
 
