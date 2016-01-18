@@ -8,7 +8,7 @@ require 'suspenders'
 GEMPROCLIST = Suspenders::AppBuilder.public_instance_methods.map(&:to_s)
                                     .grep(/_gem$/)
                                     .grep(/^add_/)
-                                    .map { |a| a[4..-5] }
+                                    .map { |a| a[4..-5].to_sym }
                                     .sort
 
 DEFAULT_GEMSET = [:slim, :faker, :guard, :rubocop, :meta_request, :bootstrap3].freeze

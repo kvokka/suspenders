@@ -517,7 +517,7 @@ end
 
     def user_gems_from_args_or_default_set
       gems_flags = []
-      options.each { |k, v| gems_flags.push k if v == true }
+      options.each { |k, v| gems_flags.push k.to_sym if v == true }
       gems = GEMPROCLIST & gems_flags
       if gems.empty?
         @@user_choice = DEFAULT_GEMSET
@@ -744,19 +744,16 @@ RuboCop::RakeTask.new
 
     def after_install_guard_rubocop
       if @@user_choice.include?(:guard) && @@user_choice.include?(:rubocop)
-        binding.pry
-        cover_def_by 'Guardfile', "guard :rubocop do", 'group :red_green_refactor, halt_on_fail: true do'
+
+        cover_def_by 'Guardfile', 'guard :rubocop do', 'group :red_green_refactor, halt_on_fail: true do'
         cover_def_by 'Guardfile', 'guard :rspec, ', 'group :red_green_refactor, halt_on_fail: true do'
 
         replace_in_file 'Guardfile',
                         'guard :rubocop do',
-                        "guard :rubocop, all_on_start: true, cli: ['--auto-correct'] do", quiet_err= true
+                        "guard :rubocop, all_on_start: true, cli: ['--auto-correct'] do", quiet_err = true
         replace_in_file 'Guardfile',
                         'guard :rspec, cmd: "bundle exec rspec" do',
-                        "guard :rspec, cmd: 'bundle exec rspec', failed_mode: :keep do", quiet_err= true
-
-
-
+                        "guard :rspec, cmd: 'bundle exec rspec', failed_mode: :keep do", quiet_err = true
 
       end
     end
@@ -892,7 +889,7 @@ RuboCop::RakeTask.new
       # does not recognize variable nesting, but now it does not matter
       def cover_def_by(file, lookup_str, external_def)
         expect_end = 0
-        found = false  
+        found = false
         accepted_content = ''
         File.readlines(file).each do |line|
           expect_end += 1 if found && line =~ /\sdo\s/

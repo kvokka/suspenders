@@ -32,7 +32,7 @@ module Suspenders
 
       GEMPROCLIST.each do |g|
         class_option g.to_sym, type: :boolean, aliases: "--#{g}", default: false,
-        desc: "#{g.humanize} gem install"
+        desc: "#{g.to_s.humanize} gem install"
       end
       super
     end

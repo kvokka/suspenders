@@ -1,6 +1,6 @@
 module Suspenders
   module Actions
-    def replace_in_file(relative_path, find, replace, quiet_err= false)
+    def replace_in_file(relative_path, find, replace, quiet_err = false)
       path = File.join(destination_root, relative_path)
       contents = IO.read(path)
       unless contents.gsub!(find, replace)
