@@ -494,6 +494,13 @@ end
       end
     end
 
+    def install_user_gems_from_github
+      File.readlines('Gemfile').each do |l|
+        possible_gem_name = l.match(/(?:github:\s+)(?:'|")\w+\/(.*)(?:'|")/i)
+        install_from_github possible_gem_name[1] if possible_gem_name
+      end
+    end
+
     # def rvm_bundler_stubs_install
     #   if system "rvm -v | grep 'rvm.io'"
     #     run 'chmod +x $rvm_path/hooks/after_cd_bundler'
@@ -912,6 +919,12 @@ RuboCop::RakeTask.new
         File.open(file, 'w') do |f|
           f.puts accepted_content
         end
+      end
+
+      def install_from_github(gem_name)
+        return nil unless gem_name
+        path = `bundle list coolline`.chomp
+        run "cd #{path} && gem build #{gem_name}.gemspec && gem install #{gem_name}"
       end
   end
 end

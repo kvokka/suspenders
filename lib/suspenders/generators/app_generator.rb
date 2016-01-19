@@ -90,6 +90,7 @@ module Suspenders
 
     def bundleinstall
       bundle_command 'install'
+      build :install_user_gems_from_github
       build :configure_simple_form
     end
 
