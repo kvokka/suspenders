@@ -671,8 +671,6 @@ end
     def add_devise_gem
       devise_conf = <<-TEXT
 
-  protected :configure_permitted_parameters
-
   def configure_permitted_parameters
     devise_parameter_sanitizer.permit(:sign_in) do |user_params|
       user_params.permit(:username, :email)
@@ -682,6 +680,7 @@ end
       user_params.permit(:email, :password, :password_confirmation)
     end
   end
+  protected :configure_permitted_parameters
     TEXT
       inject_into_file('Gemfile', "\ngem 'devise'", after: '# user_choice')
       inject_into_file('app/controllers/application_controller.rb',
