@@ -354,7 +354,7 @@ end
 
     def gitignore_files
       remove_file '.gitignore'
-      copy_file 'suspenders_gitignore', '.gitignore'
+      copy_file 'gitignore', '.gitignore'
       [
         'app/views/pages',
         'spec/lib',
