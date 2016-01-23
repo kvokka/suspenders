@@ -93,6 +93,7 @@ module Suspenders
       generate.stylesheets false
       generate.test_framework :rspec
       generate.view_specs false
+      generate.fixture_replacement :factory_girl, dir: 'spec/fixtures'
     end
 
       RUBY
@@ -567,7 +568,7 @@ end
                    rails_db:      'For pretty view in browser & xls export for models',
                    faker:         'Gem for generate fake data in testing',
                    rubocop:       'Code inspector and code formatting tool',
-                   guard:         'Guard (with livereload, rails, migrate, bundler) and dependences',
+                   guard:         'Guard (with RSpec, livereload, rails, migrate, bundler)',
                    bundler_audit: 'Extra possibilities for gems version control',
                    airbrake:      'Airbrake error logging',
                    meta_request:  "Rails meta panel in chrome console. Very usefull in AJAX debugging.\n#{' ' * 24}Link for chrome add-on in Gemfile.\n#{' ' * 24}Do not delete comments if you need this link"
@@ -627,7 +628,9 @@ end
   gem 'guard-livereload', '~> 2.4', require: false
   gem 'guard-rails', require: false
   gem 'guard-migrate'
+  gem 'guard-rspec', github: 'kvokka/guard-rspec', require: false
   gem 'guard-bundler', require: false
+  gem 'rb-inotify', github: 'kvokka/rb-inotify'
       TEXT
       inject_into_file('Gemfile', t, after: 'group :development do')
     end
@@ -665,7 +668,7 @@ end
       inject_into_file('Gemfile', "\ngem 'twitter-bootstrap-rails'",
                        after: '# user_choice')
       inject_into_file('Gemfile', "\ngem 'devise-bootstrap-views'",
-                       after: '# user_choice')
+                       after: '# user_choice') if @@user_choice.include?(:devise)
     end
 
     def add_devise_gem
@@ -689,6 +692,7 @@ end
 
       inject_into_file('app/controllers/application_controller.rb', devise_conf,
                        after: 'protect_from_forgery with: :exception')
+      copy_file 'devise.rb', 'spec/support/devise.rb'
     end
 
     def add_will_paginate_gem
@@ -762,8 +766,7 @@ RuboCop::RakeTask.new
                         "guard :rubocop, all_on_start: true, cli: ['--auto-correct'] do", quiet_err = true
         replace_in_file 'Guardfile',
                         'guard :rspec, cmd: "bundle exec rspec" do',
-                        "guard :rspec, cmd: 'bundle exec rspec', failed_mode: :keep do", quiet_err = true
-
+                        "guard :rspec, cmd: 'bundle exec rspec', failed_mode: :keep do, uniq: true", quiet_err = true
       end
     end
 
