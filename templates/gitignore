@@ -10,6 +10,9 @@
 /log/*
 /public/system
 /public/assets
+/public/uploads
 /tags
 /tmp/*
 /vendor/bundle
+/.idea/
+/vendor/cache/

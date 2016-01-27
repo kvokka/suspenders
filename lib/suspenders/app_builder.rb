@@ -626,9 +626,9 @@ end
 
   gem 'guard'
   gem 'guard-livereload', '~> 2.4', require: false
-  gem 'guard-rails', require: false
+  gem 'guard-puma'
   gem 'guard-migrate'
-  gem 'guard-rspec', github: 'kvokka/guard-rspec', require: false
+  gem 'guard-rspec', require: false # , github: 'kvokka/guard-rspec'
   gem 'guard-bundler', require: false
   gem 'rb-inotify', github: 'kvokka/rb-inotify'
       TEXT
@@ -673,13 +673,14 @@ end
 
     def add_devise_gem
       devise_conf = <<-TEXT
-
+      
+  # v.3.5 syntax. will be deprecated in 4.0
   def configure_permitted_parameters
-    devise_parameter_sanitizer.permit(:sign_in) do |user_params|
-      user_params.permit(:username, :email)
+    devise_parameter_sanitizer.for(:sign_in) do |user_params|
+      user_params.permit(:email, :password)
     end
 
-    devise_parameter_sanitizer.permit(:sign_up) do |user_params|
+    devise_parameter_sanitizer.for(:sign_up) do |user_params|
       user_params.permit(:email, :password, :password_confirmation)
     end
   end
@@ -692,7 +693,7 @@ end
 
       inject_into_file('app/controllers/application_controller.rb', devise_conf,
                        after: 'protect_from_forgery with: :exception')
-      copy_file 'devise.rb', 'spec/support/devise.rb'
+      copy_file 'devise_rspec.rb', 'spec/support/devise.rb'
     end
 
     def add_will_paginate_gem
@@ -752,7 +753,12 @@ RuboCop::RakeTask.new
     end
 
     def after_install_guard
-      run 'guard init' if @@user_choice.include?(:guard)
+      if @@user_choice.include?(:guard)
+      run 'guard init'
+      replace_in_file 'Guardfile',
+                        "guard 'puma' do",
+                        "guard :puma, port: 3000 do", quiet_err = true
+      end 
     end
 
     def after_install_guard_rubocop
@@ -763,7 +769,7 @@ RuboCop::RakeTask.new
 
         replace_in_file 'Guardfile',
                         'guard :rubocop do',
-                        "guard :rubocop, all_on_start: true, cli: ['--auto-correct'] do", quiet_err = true
+                        "guard :rubocop, all_on_start: false do", quiet_err = true
         replace_in_file 'Guardfile',
                         'guard :rspec, cmd: "bundle exec rspec" do',
                         "guard :rspec, cmd: 'bundle exec rspec', failed_mode: :keep do, uniq: true", quiet_err = true
@@ -925,7 +931,7 @@ RuboCop::RakeTask.new
 
       def install_from_github(gem_name)
         return nil unless gem_name
-        path = `bundle list coolline`.chomp
+        path = `bundle list #{gem_name}`.chomp
         run "cd #{path} && gem build #{gem_name}.gemspec && gem install #{gem_name}"
       end
   end
