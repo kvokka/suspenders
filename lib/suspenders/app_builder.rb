@@ -1,5 +1,5 @@
 require 'forwardable'
-require 'pry'
+# require 'pry'
 
 module Suspenders
   class AppBuilder < Rails::AppBuilder
@@ -233,7 +233,7 @@ end
     end
 
     def create_database
-      bundle_command 'exec rake db:create db:migrate'
+      bundle_command 'exec rake db:drop db:create db:migrate'
     end
 
     def replace_gemfile
@@ -571,6 +571,8 @@ end
                    guard:         'Guard (with RSpec, livereload, rails, migrate, bundler)',
                    bundler_audit: 'Extra possibilities for gems version control',
                    airbrake:      'Airbrake error logging',
+                   responders:    'A set of responders modules to dry up your Rails 4.2+ app.',
+                   hirbunicode:  'Hirb unicode support',
                    meta_request:  "Rails meta panel in chrome console. Very usefull in AJAX debugging.\n#{' ' * 24}Link for chrome add-on in Gemfile.\n#{' ' * 24}Do not delete comments if you need this link"
                     }
       multiple_choice('Write numbers of all preferred gems.', variants).each do |gem|
@@ -673,7 +675,7 @@ end
 
     def add_devise_gem
       devise_conf = <<-TEXT
-      
+
   # v.3.5 syntax. will be deprecated in 4.0
   def configure_permitted_parameters
     devise_parameter_sanitizer.for(:sign_in) do |user_params|
@@ -704,6 +706,14 @@ end
                                                   @@user_choice.include?(:bootstrap3_sass)
     end
 
+    def add_responders_gem
+      inject_into_file('Gemfile', "\ngem 'responders'", after: '# user_choice')
+    end
+
+    def add_hirbunicode_gem
+      inject_into_file('Gemfile', "\ngem 'hirb-unicode'", after: '# user_choice')
+    end
+
     # ------------------------------------ step4
 
     def add_user_gems
@@ -720,8 +730,14 @@ end
       @@app_file_scss = 'app/assets/stylesheets/application.scss'
       @@app_file_css = 'app/assets/stylesheets/application.css'
       @@js_file = 'app/assets/javascripts/application.js'
-      install_queue = [:guard, :guard_rubocop, :bootstrap3_sass, :bootstrap3,
-                       :devise, :normalize, :rubocop]
+      install_queue = [:responders,
+                       :guard,
+                       :guard_rubocop,
+                       :bootstrap3_sass,
+                       :bootstrap3,
+                       :devise,
+                       :normalize,
+                       :rubocop]
       install_queue.each { |q| send "after_install_#{q}" }
       delete_comments
     end
@@ -754,11 +770,11 @@ RuboCop::RakeTask.new
 
     def after_install_guard
       if @@user_choice.include?(:guard)
-      run 'guard init'
-      replace_in_file 'Guardfile',
+        run 'guard init'
+        replace_in_file 'Guardfile',
                         "guard 'puma' do",
-                        "guard :puma, port: 3000 do", quiet_err = true
-      end 
+                        'guard :puma, port: 3000 do', quiet_err = true
+      end
     end
 
     def after_install_guard_rubocop
@@ -769,7 +785,7 @@ RuboCop::RakeTask.new
 
         replace_in_file 'Guardfile',
                         'guard :rubocop do',
-                        "guard :rubocop, all_on_start: false do", quiet_err = true
+                        'guard :rubocop, all_on_start: false do', quiet_err = true
         replace_in_file 'Guardfile',
                         'guard :rspec, cmd: "bundle exec rspec" do',
                         "guard :rspec, cmd: 'bundle exec rspec', failed_mode: :keep do, uniq: true", quiet_err = true
@@ -809,6 +825,10 @@ RuboCop::RakeTask.new
         inject_into_file(@@app_file_scss, "\n@import 'normalize-rails';",
                          after: '@charset "utf-8";')
       end
+    end
+
+    def after_install_responders
+      run('rails g responders:install') if @@user_choice.include? :responders
     end
 
     def show_goodbye_message

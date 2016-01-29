@@ -11,21 +11,24 @@ configured from the box
 
 This user gem pack are available for installation
 
- * bootstrap3
- * bootstrap3_sass
- * bundler_audit
- * faker
- * guard
- * guard_rubocop
- * slim
- * haml
- * meta_request
- * rails_db
- * rubocop
- * devise
- * devise-bootstrap-views
- * will_paginate
- * will_paginate-bootstrap
+ * [Airbrake](https://github.com/airbrake/airbrake) for exception notification
+ * [bootstrap3]
+ * [bootstrap3_sass]
+ * [bundler_audit]
+ * [faker]
+ * [guard]
+ * [guard_rubocop]
+ * [slim]
+ * [haml]
+ * [meta_request]
+ * [rails_db]
+ * [rubocop]
+ * [devise]
+ * [devise-bootstrap-views]
+ * [will_paginate]
+ * [will_paginate-bootstrap]
+ * [responders](https://github.com/plataformatec/responders)A set of responders modules to dry up your Rails 4.2+ app.
+ * [hirb-unicode](https://github.com/miaout17/hirb-unicode) Unicode support for hirb
 
 
 ## Installation
@@ -45,6 +48,10 @@ This will create a Rails app in `projectname` using the latest version of Rails.
 This will provide a dialog, where you can select needed gems, also you can add
 it with gemname flag, after app_name, like `suspenders projectname --slim`.
 
+Note, that databases with names `projectname`_development and `projectname`_test
+will be dropped. For example, if your project calls `awesome`, databases
+`awesome_development` and `awesome_test` will be dropped.
+
 *NB: if you install custom gems, default user gem pack will not be installed.
 
 ## Gemfile
@@ -55,7 +62,6 @@ generated projectname/Gemfile. This gem will be installed anyway.
 
 It includes application gems like:
 
-* [Airbrake](https://github.com/airbrake/airbrake) for exception notification
 * [Autoprefixer Rails](https://github.com/ai/autoprefixer-rails) for CSS vendor prefixes
 * [Delayed Job](https://github.com/collectiveidea/delayed_job) for background
   processing
@@ -83,6 +89,7 @@ And development gems like:
 * [Dotenv](https://github.com/bkeepers/dotenv) for loading environment variables
 * [Pry Rails](https://github.com/rweng/pry-rails) for interactively exploring
   objects
+* [Hirb](https://github.com/cldwalker/hirb) for pretty tables view in the console
 * [ByeBug](https://github.com/deivid-rodriguez/byebug) for interactively
   debugging behavior
 * [Bullet](https://github.com/flyerhzm/bullet) for help to kill N+1 queries and
