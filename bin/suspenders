@@ -11,7 +11,7 @@ GEMPROCLIST = Suspenders::AppBuilder.public_instance_methods.map(&:to_s)
                                     .map { |a| a[4..-5].to_sym }
                                     .sort
 
-DEFAULT_GEMSET = [:slim, :faker, :guard, :rubocop, :meta_request, :bootstrap3].freeze
+DEFAULT_GEMSET = [:slim, :faker, :guard, :rubocop, :meta_request, :bootstrap3, :responders].freeze
 
 if ['-v', '--version'].include? ARGV[0]
   puts Suspenders::VERSION
