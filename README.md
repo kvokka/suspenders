@@ -9,26 +9,45 @@ Implemented function of user choice gems installation with all their settings,
 so you can use fully working application with all needed installed and
 configured from the box
 
-This user gem pack are available for installation
+This user gem pack are available for installation and some other goodies from
+the box
 
  * [Airbrake](https://github.com/airbrake/airbrake) for exception notification
- * [bootstrap3]
- * [bootstrap3_sass]
- * [bundler_audit]
- * [faker]
- * [guard]
- * [guard_rubocop]
- * [slim]
- * [haml]
- * [meta_request]
- * [rails_db]
- * [rubocop]
- * [devise]
- * [devise-bootstrap-views]
- * [will_paginate]
- * [will_paginate-bootstrap]
- * [responders](https://github.com/plataformatec/responders)A set of responders modules to dry up your Rails 4.2+ app.
- * [hirb-unicode](https://github.com/miaout17/hirb-unicode) Unicode support for hirb
+ * [bootstrap3](https://github.com/seyhunak/twitter-bootstrap-rails) Bootstrap
+ with asset pipeline support
+ * [bootstrap3_sass](https://github.com/twbs/bootstrap-sass) Bootstrap sass
+ * [bundler_audit](https://github.com/rubysec/bundler-audit)Patch-level
+ verification for Bundler
+ * [faker](https://github.com/stympy/faker)A library for generating fake data
+ such as names, addresses, and phone numbers.
+ * [guard](https://github.com/guard/guard)Guard is a command line tool to
+ easily handle events on file system modifications. http://guardgem.org
+ * [guard_rubocop](https://github.com/yujinakayama/guard-rubocop)Guard plugin
+ for RuboCop
+ * [slim](https://github.com/slim-template/slim)Slim is a template language
+ whose goal is reduce the syntax to the essential parts without becoming
+ cryptic. http://slim-lang.com
+ * [html2slim](https://github.com/slim-template/html2slim) HTML2SLIM utility,
+  installs with slim
+ * [haml](https://github.com/haml/haml)HTML Abstraction Markup Language - A
+ Markup Haiku http://haml.info
+ * [meta_request](https://github.com/dejan/rails_panel/tree/master/meta_request)
+ Supporting gem for Rails Panel (Google Chrome extension for Rails development).
+ * [rails_db](https://github.com/igorkasyanchuk/rails_db)Rails Database Viewer
+ and SQL Query Runner https://youtu.be/TYsRxXRFp1g
+ * [rubocop](https://github.com/bbatsov/rubocop)A Ruby static code analyzer,
+ based on the community Ruby style guide.
+ * [devise](https://github.com/plataformatec/devise)Flexible authentication
+ solution for Rails with Warden. http://blog.plataformatec.com.br/tag/devise/
+ * [devise-bootstrap-views](https://github.com/hisea/devise-bootstrap-views)
+ * [will_paginate](https://github.com/mislav/will_paginate)Pagination library
+ for Rails, Sinatra, Merb, DataMapper
+ * [will_paginate-bootstrap](https://github.com/bootstrap-ruby/will_paginate-bootstrap)
+ Integrates the Twitter Bootstrap pagination component with will_paginate
+ * [responders](https://github.com/plataformatec/responders)A set of responders
+ modules to dry up your Rails 4.2+ app.
+ * [hirb-unicode](https://github.com/miaout17/hirb-unicode) Unicode support
+ for hirb
 
 
 ## Installation
@@ -47,6 +66,7 @@ This will create a Rails app in `projectname` using the latest version of Rails.
 
 This will provide a dialog, where you can select needed gems, also you can add
 it with gemname flag, after app_name, like `suspenders projectname --slim`.
+List of gems you always can get with `suspenders -h` command.
 
 Note, that databases with names `projectname`_development and `projectname`_test
 will be dropped. For example, if your project calls `awesome`, databases
@@ -90,12 +110,12 @@ And development gems like:
 * [Pry Rails](https://github.com/rweng/pry-rails) for interactively exploring
   objects
 * [Hirb](https://github.com/cldwalker/hirb) for pretty tables view in the console
+* [Awesome_print](https://github.com/michaeldv/awesome_print)Pretty print your
+  Ruby objects with style -- in full color and with proper indentation
 * [ByeBug](https://github.com/deivid-rodriguez/byebug) for interactively
   debugging behavior
 * [Bullet](https://github.com/flyerhzm/bullet) for help to kill N+1 queries and
   unused eager loading
-* [Bundler Audit](https://github.com/rubysec/bundler-audit) for scanning the
-  Gemfile for insecure dependencies based on published CVEs
 * [Spring](https://github.com/rails/spring) for fast Rails actions via
   pre-loading
 * [Web Console](https://github.com/rails/web-console) for better debugging via

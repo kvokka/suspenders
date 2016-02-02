@@ -1,3 +1,8 @@
+1.35.6 (February 2, 2016)
+
+* Implemented options support
+* Bitters support removed (will move in options in future)
+
 1.35.0 (December 30, 2015)
 
 * Introduce Heroku Pipelines support

@@ -572,7 +572,7 @@ end
                    bundler_audit: 'Extra possibilities for gems version control',
                    airbrake:      'Airbrake error logging',
                    responders:    'A set of responders modules to dry up your Rails 4.2+ app.',
-                   hirbunicode:  'Hirb unicode support',
+                   hirbunicode:   'Hirb unicode support',
                    meta_request:  "Rails meta panel in chrome console. Very usefull in AJAX debugging.\n#{' ' * 24}Link for chrome add-on in Gemfile.\n#{' ' * 24}Do not delete comments if you need this link"
                     }
       multiple_choice('Write numbers of all preferred gems.', variants).each do |gem|
@@ -610,6 +610,7 @@ end
 
     def add_slim_gem
       inject_into_file('Gemfile', "\ngem 'slim-rails'", after: '# user_choice')
+      inject_into_file('Gemfile', "\n  gem 'html2slim'", after: 'group :development do')
     end
 
     def add_rails_db_gem
