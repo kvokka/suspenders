@@ -48,6 +48,8 @@ the box
  modules to dry up your Rails 4.2+ app.
  * [hirb-unicode](https://github.com/miaout17/hirb-unicode) Unicode support
  for hirb
+ * [dotenv-heroku](https://github.com/sideshowcoder/dotenv-heroku) Addition for
+ quick variables export to heroku
 
 
 ## Installation

@@ -573,6 +573,7 @@ end
                    airbrake:      'Airbrake error logging',
                    responders:    'A set of responders modules to dry up your Rails 4.2+ app.',
                    hirbunicode:   'Hirb unicode support',
+                   dotenv_heroku: 'dotenv-heroku support',
                    meta_request:  "Rails meta panel in chrome console. Very usefull in AJAX debugging.\n#{' ' * 24}Link for chrome add-on in Gemfile.\n#{' ' * 24}Do not delete comments if you need this link"
                     }
       multiple_choice('Write numbers of all preferred gems.', variants).each do |gem|
@@ -606,6 +607,11 @@ end
 
     def add_haml_gem
       inject_into_file('Gemfile', "\ngem 'haml-rails'", after: '# user_choice')
+    end
+
+    def add_dotenv_heroku_gem
+      inject_into_file('Gemfile', "\n  gem 'dotenv-heroku'",
+                       after: 'group :development do')
     end
 
     def add_slim_gem
@@ -761,8 +767,11 @@ end
     def after_install_rubocop
       if @@user_choice.include? :rubocop
         t = <<-TEXT
-require 'rubocop/rake_task'
-RuboCop::RakeTask.new
+
+if ENV['RAILS_ENV'] == 'test' || ENV['RAILS_ENV'] == 'development'
+  require 'rubocop/rake_task'
+  RuboCop::RakeTask.new
+end
         TEXT
         append_file 'Rakefile', t
         run 'rubocop -a'
