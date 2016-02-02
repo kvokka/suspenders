@@ -16,35 +16,35 @@ the box
  * [bootstrap3](https://github.com/seyhunak/twitter-bootstrap-rails) Bootstrap
  with asset pipeline support
  * [bootstrap3_sass](https://github.com/twbs/bootstrap-sass) Bootstrap sass
- * [bundler_audit](https://github.com/rubysec/bundler-audit)Patch-level
+ * [bundler_audit](https://github.com/rubysec/bundler-audit) Patch-level
  verification for Bundler
- * [faker](https://github.com/stympy/faker)A library for generating fake data
+ * [faker](https://github.com/stympy/faker) A library for generating fake data
  such as names, addresses, and phone numbers.
- * [guard](https://github.com/guard/guard)Guard is a command line tool to
+ * [guard](https://github.com/guard/guard) Guard is a command line tool to
  easily handle events on file system modifications. http://guardgem.org
- * [guard_rubocop](https://github.com/yujinakayama/guard-rubocop)Guard plugin
+ * [guard_rubocop](https://github.com/yujinakayama/guard-rubocop) Guard plugin
  for RuboCop
- * [slim](https://github.com/slim-template/slim)Slim is a template language
+ * [slim](https://github.com/slim-template/slim) Slim is a template language
  whose goal is reduce the syntax to the essential parts without becoming
  cryptic. http://slim-lang.com
  * [html2slim](https://github.com/slim-template/html2slim) HTML2SLIM utility,
   installs with slim
- * [haml](https://github.com/haml/haml)HTML Abstraction Markup Language - A
+ * [haml](https://github.com/haml/haml) HTML Abstraction Markup Language - A
  Markup Haiku http://haml.info
  * [meta_request](https://github.com/dejan/rails_panel/tree/master/meta_request)
  Supporting gem for Rails Panel (Google Chrome extension for Rails development).
- * [rails_db](https://github.com/igorkasyanchuk/rails_db)Rails Database Viewer
+ * [rails_db](https://github.com/igorkasyanchuk/rails_db) Rails Database Viewer
  and SQL Query Runner https://youtu.be/TYsRxXRFp1g
- * [rubocop](https://github.com/bbatsov/rubocop)A Ruby static code analyzer,
+ * [rubocop](https://github.com/bbatsov/rubocop) A Ruby static code analyzer,
  based on the community Ruby style guide.
- * [devise](https://github.com/plataformatec/devise)Flexible authentication
+ * [devise](https://github.com/plataformatec/devise) Flexible authentication
  solution for Rails with Warden. http://blog.plataformatec.com.br/tag/devise/
  * [devise-bootstrap-views](https://github.com/hisea/devise-bootstrap-views)
- * [will_paginate](https://github.com/mislav/will_paginate)Pagination library
+ * [will_paginate](https://github.com/mislav/will_paginate) Pagination library
  for Rails, Sinatra, Merb, DataMapper
  * [will_paginate-bootstrap](https://github.com/bootstrap-ruby/will_paginate-bootstrap)
  Integrates the Twitter Bootstrap pagination component with will_paginate
- * [responders](https://github.com/plataformatec/responders)A set of responders
+ * [responders](https://github.com/plataformatec/responders) A set of responders
  modules to dry up your Rails 4.2+ app.
  * [hirb-unicode](https://github.com/miaout17/hirb-unicode) Unicode support
  for hirb
@@ -110,7 +110,7 @@ And development gems like:
 * [Pry Rails](https://github.com/rweng/pry-rails) for interactively exploring
   objects
 * [Hirb](https://github.com/cldwalker/hirb) for pretty tables view in the console
-* [Awesome_print](https://github.com/michaeldv/awesome_print)Pretty print your
+* [Awesome_print](https://github.com/michaeldv/awesome_print) Pretty print your
   Ruby objects with style -- in full color and with proper indentation
 * [ByeBug](https://github.com/deivid-rodriguez/byebug) for interactively
   debugging behavior
