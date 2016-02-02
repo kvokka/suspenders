@@ -789,7 +789,7 @@ RuboCop::RakeTask.new
                         'guard :rubocop, all_on_start: false do', quiet_err = true
         replace_in_file 'Guardfile',
                         'guard :rspec, cmd: "bundle exec rspec" do',
-                        "guard :rspec, cmd: 'bundle exec rspec', failed_mode: :keep do, uniq: true", quiet_err = true
+                        "guard :rspec, cmd: 'bundle exec rspec', failed_mode: :keep do", quiet_err = true
       end
     end
 
