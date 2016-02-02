@@ -631,7 +631,7 @@ end
   gem 'guard-livereload', '~> 2.4', require: false
   gem 'guard-puma'
   gem 'guard-migrate'
-  gem 'guard-rspec', require: false # , github: 'kvokka/guard-rspec'
+  gem 'guard-rspec', require: false
   gem 'guard-bundler', require: false
   gem 'rb-inotify', github: 'kvokka/rb-inotify'
       TEXT
