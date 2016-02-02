@@ -612,6 +612,7 @@ end
     def add_dotenv_heroku_gem
       inject_into_file('Gemfile', "\n  gem 'dotenv-heroku'",
                        after: 'group :development do')
+      append_file 'Rakefile', %(\nrequire "dotenv-heroku/tasks"\n)
     end
 
     def add_slim_gem
