@@ -62,9 +62,9 @@ module Suspenders
       invoke :remove_config_comment_lines
       invoke :remove_routes_comment_lines
       invoke :setup_dotfiles
-      invoke :setup_git
       invoke :post_init
       invoke :setup_database
+      invoke :setup_git
       invoke :create_heroku_apps
       invoke :create_github_repo
       invoke :setup_segment
@@ -191,8 +191,8 @@ module Suspenders
     def setup_git
       unless options[:skip_git]
         say 'Initializing git'
-        invoke :setup_gitignore
         invoke :init_git
+        invoke :setup_gitignore
       end
     end
 
