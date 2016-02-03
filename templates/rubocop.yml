@@ -40,3 +40,5 @@ AllCops:
   Exclude:
     - 'bin/**/*'
   TargetRubyVersion: 2.3
+Metrics/AbcSize:
+  Max: 25
