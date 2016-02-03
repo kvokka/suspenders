@@ -379,7 +379,7 @@ end
     end
 
     def git_init_commit
-      if @@user_choice.include?(:gitcommit)
+      if user_choose?(:gitcommit)
         say 'Init commit'
         run 'git add .'
         run 'git commit -m "Init commit"'
@@ -543,13 +543,13 @@ end
                    bootstrap3:      'Twitter bootstrap v.3 asset pipeline'
                     }
       gem = choice 'Select front-end framework: ', variants
-      @@user_choice.push(gem) if gem
+      add_to_user_choise(gem) if gem
     end
 
     def choose_template_engine
       variants = { none: 'Erb', slim: 'Slim', haml: 'Haml' }
       gem = choice 'Select markup language: ', variants
-      @@user_choice.push(gem) if gem
+      add_to_user_choise(gem) if gem
     end
 
     def choose_authenticate_engine
@@ -559,7 +559,7 @@ end
         @@devise_model = ask_stylish 'Enter devise model name:'
         gem = :devise
       end
-      @@user_choice.push(gem) if gem
+      add_to_user_choise(gem) if gem
     end
 
     def choose_undroup_gems
@@ -577,21 +577,21 @@ end
                    meta_request:  "Rails meta panel in chrome console. Very usefull in AJAX debugging.\n#{' ' * 24}Link for chrome add-on in Gemfile.\n#{' ' * 24}Do not delete comments if you need this link"
                     }
       multiple_choice('Write numbers of all preferred gems.', variants).each do |gem|
-        @@user_choice.push gem
+        add_to_user_choise gem
       end
     end
 
     # def bundler_audit_gem
     #   gem_name = __callee__.to_s.gsub(/_gem/, '')
     #   gem_description = 'Extra possibilities for gems version control'
-    #   @@user_choice.push( yes_no_question( gem_name,
+    #   add_to_user_choise( yes_no_question( gem_name,
     #           gem_description)) unless options[gem_name]
     # end
 
     def users_init_commit_choice
       variants = { none: 'No', gitcommit: 'Yes' }
       sel = choice 'Make init commit in the end? ', variants
-      @@user_choice.push(sel) unless sel == :none
+      add_to_user_choise(sel) unless sel == :none
     end
 
     def ask_cleanup_commens
@@ -599,7 +599,7 @@ end
         variants = { none: 'No', clean_comments: 'Yes' }
         sel = choice 'Delete comments in Gemfile, routes.rb & config files? ',
                      variants
-        @@user_choice.push(sel) unless sel == :none
+        add_to_user_choise(sel) unless sel == :none
       end
     end
 
@@ -612,7 +612,7 @@ end
     def add_dotenv_heroku_gem
       inject_into_file('Gemfile', "\n  gem 'dotenv-heroku'",
                        after: 'group :development do')
-      append_file 'Rakefile', %(\nrequire "dotenv-heroku/tasks"\n)
+      append_file 'Rakefile', %(\nrequire 'dotenv-heroku/tasks' if ENV['RAILS_ENV'] == 'test' || ENV['RAILS_ENV'] == 'development'\n)
     end
 
     def add_slim_gem
@@ -678,7 +678,7 @@ end
       inject_into_file('Gemfile', "\ngem 'twitter-bootstrap-rails'",
                        after: '# user_choice')
       inject_into_file('Gemfile', "\ngem 'devise-bootstrap-views'",
-                       after: '# user_choice') if @@user_choice.include?(:devise)
+                       after: '# user_choice') if user_choose?(:devise)
     end
 
     def add_devise_gem
@@ -710,8 +710,8 @@ end
       inject_into_file('Gemfile', "\ngem 'will_paginate', '~> 3.0.6'",
                        after: '# user_choice')
       inject_into_file('Gemfile', "\ngem 'will_paginate-bootstrap'",
-                       after: '# user_choice') if @@user_choice.include?(:bootstrap3) ||
-                                                  @@user_choice.include?(:bootstrap3_sass)
+                       after: '# user_choice') if user_choose?(:bootstrap3) ||
+                                                  user_choose?(:bootstrap3_sass)
     end
 
     def add_responders_gem
@@ -726,11 +726,10 @@ end
 
     def add_user_gems
       GEMPROCLIST.each do |g|
-        send "add_#{g}_gem" if @@user_choice
-                               .include? g.to_sym
+        send "add_#{g}_gem" if user_choose? g.to_sym
       end
-      add_guard_rubocop_gem if @@user_choice.include?(:guard) &&
-                               @@user_choice.include?(:rubocop) &&
+      add_guard_rubocop_gem if user_choose?(:guard) &&
+                               user_choose?(:rubocop) &&
                                !options[:guard_rubocop]
     end
 
@@ -751,14 +750,14 @@ end
     end
 
     def after_install_devise
-      generate 'devise:install' if @@user_choice.include? :devise
-      if !@@devise_model.empty? && @@user_choice.include?(:devise)
+      generate 'devise:install' if user_choose? :devise
+      if !@@devise_model.empty? && user_choose?(:devise)
         generate "devise #{@@devise_model.titleize}"
         inject_into_file('app/controllers/application_controller.rb',
                          "\nbefore_action :authenticate_user!",
                          after: 'before_action :configure_permitted_parameters, if: :devise_controller?')
       end
-      if @@user_choice.include?(:bootstrap3)
+      if user_choose?(:bootstrap3)
         generate 'devise:views:bootstrap_templates'
       else
         generate 'devise:views'
@@ -766,7 +765,7 @@ end
     end
 
     def after_install_rubocop
-      if @@user_choice.include? :rubocop
+      if user_choose? :rubocop
         t = <<-TEXT
 
 if ENV['RAILS_ENV'] == 'test' || ENV['RAILS_ENV'] == 'development'
@@ -780,7 +779,7 @@ end
     end
 
     def after_install_guard
-      if @@user_choice.include?(:guard)
+      if user_choose?(:guard)
         run 'guard init'
         replace_in_file 'Guardfile',
                         "guard 'puma' do",
@@ -789,7 +788,7 @@ end
     end
 
     def after_install_guard_rubocop
-      if @@user_choice.include?(:guard) && @@user_choice.include?(:rubocop)
+      if user_choose?(:guard) && user_choose?(:rubocop)
 
         cover_def_by 'Guardfile', 'guard :rubocop do', 'group :red_green_refactor, halt_on_fail: true do'
         cover_def_by 'Guardfile', 'guard :rspec, ', 'group :red_green_refactor, halt_on_fail: true do'
@@ -804,7 +803,7 @@ end
     end
 
     def after_install_bootstrap3_sass
-      if @@user_choice.include? :bootstrap3_sass
+      if user_choose? :bootstrap3_sass
         setup_stylesheets
         @@use_asset_pipelline = false
         append_file(@@app_file_scss,
@@ -816,7 +815,7 @@ end
     end
 
     def after_install_bootstrap3
-      if @@user_choice.include? :bootstrap3
+      if user_choose? :bootstrap3
         @@use_asset_pipelline = true
         remove_file 'app/views/layouts/application.html.erb'
         generate 'bootstrap:install static'
@@ -839,12 +838,12 @@ end
     end
 
     def after_install_responders
-      run('rails g responders:install') if @@user_choice.include? :responders
+      run('rails g responders:install') if user_choose? :responders
     end
 
     def show_goodbye_message
       say 'Congratulations! You just pulled our suspenders.'
-      say_color YELLOW, "Remember to run 'rails generate airbrake' with your API key." if @@user_choice.include? :airbrake
+      say_color YELLOW, "Remember to run 'rails generate airbrake' with your API key." if user_choose? :airbrake
     end
 
     private
@@ -913,7 +912,7 @@ end
       def add_gems_from_args
         ARGV.each do |g|
           next unless g[0] == '-' && g[1] == '-'
-          @@user_choice.push g[2..-1].to_sym
+          add_to_user_choise g[2..-1].to_sym
         end
       end
 
@@ -928,7 +927,7 @@ end
       end
 
       def delete_comments
-        if options[:clean_comments] || @@user_choice.include?(:clean_comments)
+        if options[:clean_comments] || user_choose?(:clean_comments)
           cleanup_comments 'Gemfile'
           remove_config_comment_lines
           remove_routes_comment_lines
@@ -964,6 +963,14 @@ end
         return nil unless gem_name
         path = `bundle list #{gem_name}`.chomp
         run "cd #{path} && gem build #{gem_name}.gemspec && gem install #{gem_name}"
+      end
+
+      def user_choose? g
+        @@user_choice.include? g
+      end
+
+      def add_to_user_choise g
+        @@user_choice.push g
       end
   end
 end
