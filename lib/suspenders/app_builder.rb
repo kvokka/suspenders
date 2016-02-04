@@ -93,7 +93,7 @@ module Suspenders
       generate.stylesheets false
       generate.test_framework :rspec
       generate.view_specs false
-      generate.fixture_replacement :factory_girl, dir: 'spec/fixtures'
+      generate.fixture_replacement :factory_girl
     end
 
       RUBY
@@ -656,7 +656,7 @@ end
     end
 
     def add_faker_gem
-      inject_into_file('Gemfile', "\n  gem 'faker'", after: 'group :test do')
+      inject_into_file('Gemfile', "\n  gem 'faker'", after: 'group :development, :test do')
     end
 
     def add_bundler_audit_gem
