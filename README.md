@@ -50,13 +50,19 @@ the box
  for hirb
  * [dotenv-heroku](https://github.com/sideshowcoder/dotenv-heroku) Addition for
  quick variables export to heroku
+ * [tinymce-rails](https://github.com/spohlenz/tinymce-rails)Integration of 
+ TinyMCE with the Rails asset pipeline
 
 
 ## Installation
 
-First install the suspenders gem:
+First install the suspenders gem add this in `Gemfile` and `bundle`
 
-    gem install suspenders
+```
+    group :development do
+      gem 'suspenders', github: 'kvokka/suspenders.git'
+    end
+```
 
 Then run:
 
@@ -68,7 +74,7 @@ This will create a Rails app in `projectname` using the latest version of Rails.
 
 This will provide a dialog, where you can select needed gems, also you can add
 it with gemname flag, after app_name, like `suspenders projectname --slim`.
-List of gems you always can get with `suspenders -h` command.
+List of gems you always can get with `suspenders --gems` command.
 
 Note, that databases with names `projectname`_development and `projectname`_test
 will be dropped. For example, if your project calls `awesome`, databases

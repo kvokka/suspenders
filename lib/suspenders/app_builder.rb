@@ -574,6 +574,7 @@ end
                    responders:    'A set of responders modules to dry up your Rails 4.2+ app.',
                    hirbunicode:   'Hirb unicode support',
                    dotenv_heroku: 'dotenv-heroku support',
+                   tinymce:       'Integration of TinyMCE with the Rails asset pipeline',
                    meta_request:  "Rails meta panel in chrome console. Very usefull in AJAX debugging.\n#{' ' * 24}Link for chrome add-on in Gemfile.\n#{' ' * 24}Do not delete comments if you need this link"
                     }
       multiple_choice('Write numbers of all preferred gems.', variants).each do |gem|
@@ -722,6 +723,11 @@ end
       inject_into_file('Gemfile', "\ngem 'hirb-unicode'", after: '# user_choice')
     end
 
+    def add_tinymce_gem
+      inject_into_file('Gemfile', "\ngem 'tinymce-rails'", after: '# user_choice')
+      copy_file 'tinymce.yml', 'config/tinymce.yml'
+    end
+
     # ------------------------------------ step4
 
     def add_user_gems
@@ -744,6 +750,7 @@ end
                        :bootstrap3,
                        :devise,
                        :normalize,
+                       :tinymce,
                        :rubocop]
       install_queue.each { |q| send "after_install_#{q}" }
       delete_comments
@@ -834,6 +841,13 @@ end
       else
         inject_into_file(@@app_file_scss, "\n@import 'normalize-rails';",
                          after: '@charset "utf-8";')
+      end
+    end
+
+    def after_install_tinymce
+      if user_choose? :tinymce
+        inject_into_file(@@js_file, "\n//= require tinymce-jquery",
+                         after: '//= require jquery_ujs')
       end
     end
 
