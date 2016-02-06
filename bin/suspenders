@@ -16,13 +16,6 @@ DEFAULT_GEMSET = [:slim, :faker, :guard, :rubocop, :meta_request, :bootstrap3, :
 if ['-v', '--version'].include? ARGV[0]
   puts Suspenders::VERSION
   exit 0
-elsif ['-h', '--help'].include? ARGV[0]
-  puts "Suspenders app_path  [options]\n\n"
-  puts '  -v        --version        Suspenders version'
-  puts '  -h        --help           Suspenders help'
-  puts '  -c        --custom         Custom gems selection'
-  puts '            --gems           List of gems'
-  exit 0
 elsif ['--gems'].include? ARGV[0]  
   puts "You can manually can add gems from the list like options"
   puts "Suspenders app_path  [--gem1_name --gem2_name ...]\n\n"
