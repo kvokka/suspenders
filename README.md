@@ -1,5 +1,7 @@
 # Suspenders
 
+New Rails project wizard
+
 ![Suspenders boy](http://media.tumblr.com/1TEAMALpseh5xzf0Jt6bcwSMo1_400.png)
 
 ## About
@@ -7,7 +9,9 @@
 Fork from thoughtbot/suspenders(https://github.com/thoughtbot/suspenders)
 Implemented function of user choice gems installation with all their settings,
 so you can use fully working application with all needed installed and
-configured from the box. Cut `Bitters` as default choice. 
+configured from the box. Cut `Bitters` as default choice.
+
+As default uses the latest Ruby version and Rails '~> 4.2.0' 
 
 This user gem pack are available for installation and some other goodies from
 the box
@@ -260,6 +264,8 @@ add gem into `Gemfile`.
 will not run
 6. Update README.MD
 7. Make PR
+
+Please, do not change version or gems for default install.
 
 If you find some misprints fell free to fix them.
 
