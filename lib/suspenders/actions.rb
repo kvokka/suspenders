@@ -4,7 +4,7 @@ module Suspenders
       path = File.join(destination_root, relative_path)
       contents = IO.read(path)
       unless contents.gsub!(find, replace)
-        fail "#{find.inspect} not found in #{relative_path}" if quiet_err == false
+        raise "#{find.inspect} not found in #{relative_path}" if quiet_err == false
       end
       File.open(path, 'w') { |file| file.write(contents) }
     end

@@ -979,11 +979,11 @@ end
         run "cd #{path} && gem build #{gem_name}.gemspec && gem install #{gem_name}"
       end
 
-      def user_choose? g
+      def user_choose?(g)
         @@user_choice.include? g
       end
 
-      def add_to_user_choise g
+      def add_to_user_choise(g)
         @@user_choice.push g
       end
   end
