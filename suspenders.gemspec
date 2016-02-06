@@ -23,7 +23,7 @@ rush to build something amazing; don't use it if you like missing deadlines.
   s.name = 'suspenders'
   s.rdoc_options = ['--charset=UTF-8']
   s.require_paths = ['lib']
-  s.summary = "Generate a Rails app using thoughtbot's best practices."
+  s.summary = "Generate a Rails app using thoughtbot's best practices with kvokka fingers."
   s.test_files = `git ls-files -- {test,spec,features}/*`.split("\n")
   s.version = Suspenders::VERSION
 

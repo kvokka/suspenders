@@ -1,10 +1,32 @@
 require 'forwardable'
-# require 'pry'
+require 'suspenders/add_user_gems/user_gems_menu_questions'
+require 'suspenders/add_user_gems/edit_menu_questions'
+require 'suspenders/add_user_gems/before_bundle_patch'
+require 'suspenders/add_user_gems/after_install_patch'
+require 'pry'
+
 
 module Suspenders
   class AppBuilder < Rails::AppBuilder
     include Suspenders::Actions
+    include Suspenders::UserGemsMenu
+    include Suspenders::EditMenuQuestions
+    include Suspenders::BeforeBundlePatch
+    include Suspenders::AfterInstallPatch
     extend Forwardable
+
+     @use_asset_pipelline = true
+     @user_choice  = []
+      @app_file_scss = 'app/assets/stylesheets/application.scss'
+      @app_file_css = 'app/assets/stylesheets/application.css'
+      @js_file = 'app/assets/javascripts/application.js'
+     
+     class << self
+        attr_accessor :use_asset_pipelline, 
+                      :devise_model,
+                      :user_choice, :app_file_scss, :app_file_css, :js_file
+     end
+
 
     def_delegators :heroku_adapter,
                    :create_heroku_pipelines_config_file,
@@ -17,9 +39,6 @@ module Suspenders
                    :set_heroku_serve_static_files,
                    :set_up_heroku_specific_gems
 
-    @@devise_model = ''
-    @@user_choice  = []
-    @@use_asset_pipelline = true
 
     def readme
       template 'README.md.erb', 'README.md'
@@ -304,7 +323,11 @@ end
     end
 
     def configure_simple_form
-      bundle_command 'exec rails generate simple_form:install'
+      if user_choose?(:bootstrap3_sass) || user_choose?(:bootstrap3)
+        bundle_command 'exec rails generate simple_form:install --bootstrap'
+      else
+        bundle_command 'exec rails generate simple_form:install'
+      end
     end
 
     def configure_action_mailer
@@ -509,354 +532,20 @@ end
     #   end
     # end
 
-    # ------------------------------------ step1
-
-    def users_gems
-      choose_authenticate_engine
-      choose_template_engine
-      choose_frontend
-      # Placeholder for other gem additions
-
-      choose_undroup_gems
-      ask_cleanup_commens
-      users_init_commit_choice
-      add_user_gems
-    end
-
     def user_gems_from_args_or_default_set
       gems_flags = []
       options.each { |k, v| gems_flags.push k.to_sym if v == true }
       gems = GEMPROCLIST & gems_flags
       if gems.empty?
-        @@user_choice = DEFAULT_GEMSET
+        AppBuilder.user_choice = DEFAULT_GEMSET
       else
-        gems.each { |g| @@user_choice << g }
+        gems.each { |g| AppBuilder.user_choice << g }
       end
       add_user_gems
     end
 
-    # ------------------------------------ step2
-
-    def choose_frontend
-      variants = { none:            'No front-end framework',
-                   bootstrap3_sass: 'Twitter bootstrap v.3 sass',
-                   bootstrap3:      'Twitter bootstrap v.3 asset pipeline'
-                    }
-      gem = choice 'Select front-end framework: ', variants
-      add_to_user_choise(gem) if gem
-    end
-
-    def choose_template_engine
-      variants = { none: 'Erb', slim: 'Slim', haml: 'Haml' }
-      gem = choice 'Select markup language: ', variants
-      add_to_user_choise(gem) if gem
-    end
-
-    def choose_authenticate_engine
-      variants = { none: 'None', devise: 'devise', devise_with_model: 'devise vs pre-installed model' }
-      gem = choice 'Select authenticate engine: ', variants
-      if gem == :devise_with_model
-        @@devise_model = ask_stylish 'Enter devise model name:'
-        gem = :devise
-      end
-      add_to_user_choise(gem) if gem
-    end
-
-    def choose_undroup_gems
-      variants = { none:          'None',
-                   will_paginate: 'Easy pagination implement',
-                   rails_db:      'For pretty view in browser & xls export for models',
-                   faker:         'Gem for generate fake data in testing',
-                   rubocop:       'Code inspector and code formatting tool',
-                   guard:         'Guard (with RSpec, livereload, rails, migrate, bundler)',
-                   bundler_audit: 'Extra possibilities for gems version control',
-                   airbrake:      'Airbrake error logging',
-                   responders:    'A set of responders modules to dry up your Rails 4.2+ app.',
-                   hirbunicode:   'Hirb unicode support',
-                   dotenv_heroku: 'dotenv-heroku support',
-                   tinymce:       'Integration of TinyMCE with the Rails asset pipeline',
-                   meta_request:  "Rails meta panel in chrome console. Very usefull in AJAX debugging.\n#{' ' * 24}Link for chrome add-on in Gemfile.\n#{' ' * 24}Do not delete comments if you need this link"
-                    }
-      multiple_choice('Write numbers of all preferred gems.', variants).each do |gem|
-        add_to_user_choise gem
-      end
-    end
-
-    # def bundler_audit_gem
-    #   gem_name = __callee__.to_s.gsub(/_gem/, '')
-    #   gem_description = 'Extra possibilities for gems version control'
-    #   add_to_user_choise( yes_no_question( gem_name,
-    #           gem_description)) unless options[gem_name]
-    # end
-
-    def users_init_commit_choice
-      variants = { none: 'No', gitcommit: 'Yes' }
-      sel = choice 'Make init commit in the end? ', variants
-      add_to_user_choise(sel) unless sel == :none
-    end
-
-    def ask_cleanup_commens
-      unless options[:clean_comments]
-        variants = { none: 'No', clean_comments: 'Yes' }
-        sel = choice 'Delete comments in Gemfile, routes.rb & config files? ',
-                     variants
-        add_to_user_choise(sel) unless sel == :none
-      end
-    end
-
-    # ------------------------------------ step3
-
-    def add_haml_gem
-      inject_into_file('Gemfile', "\ngem 'haml-rails'", after: '# user_choice')
-    end
-
-    def add_dotenv_heroku_gem
-      inject_into_file('Gemfile', "\n  gem 'dotenv-heroku'",
-                       after: 'group :development do')
-      append_file 'Rakefile', %(\nrequire 'dotenv-heroku/tasks' if ENV['RAILS_ENV'] == 'test' || ENV['RAILS_ENV'] == 'development'\n)
-    end
-
-    def add_slim_gem
-      inject_into_file('Gemfile', "\ngem 'slim-rails'", after: '# user_choice')
-      inject_into_file('Gemfile', "\n  gem 'html2slim'", after: 'group :development do')
-    end
-
-    def add_rails_db_gem
-      inject_into_file('Gemfile', "\n  gem 'rails_db'\n  gem 'axlsx_rails'",
-                       after: 'group :development do')
-    end
-
-    def add_rubocop_gem
-      inject_into_file('Gemfile', "\n  gem 'rubocop', require: false",
-                       after: 'group :development do')
-      copy_file 'rubocop.yml', '.rubocop.yml'
-    end
-
-    def add_guard_gem
-      t = <<-TEXT.chomp
-
-  gem 'guard'
-  gem 'guard-livereload', '~> 2.4', require: false
-  gem 'guard-puma'
-  gem 'guard-migrate'
-  gem 'guard-rspec', require: false
-  gem 'guard-bundler', require: false
-  gem 'rb-inotify', github: 'kvokka/rb-inotify'
-      TEXT
-      inject_into_file('Gemfile', t, after: 'group :development do')
-    end
-
-    def add_guard_rubocop_gem
-      inject_into_file('Gemfile', "\n  gem 'guard-rubocop'",
-                       after: 'group :development do')
-    end
-
-    def add_meta_request_gem
-      inject_into_file('Gemfile', "\n  gem 'meta_request' # link for chrome add-on. https://chrome.google.com/webstore/detail/railspanel/gjpfobpafnhjhbajcjgccbbdofdckggg",
-                       after: 'group :development do')
-    end
-
-    def add_faker_gem
-      inject_into_file('Gemfile', "\n  gem 'faker'", after: 'group :development, :test do')
-    end
-
-    def add_bundler_audit_gem
-      copy_file 'bundler_audit.rake', 'lib/tasks/bundler_audit.rake'
-      append_file 'Rakefile', %(\ntask default: "bundler:audit"\n)
-    end
-
-    def add_bootstrap3_sass_gem
-      inject_into_file('Gemfile', "\ngem 'bootstrap-sass', '~> 3.3.6'",
-                       after: '# user_choice')
-    end
-
-    def add_airbrake_gem
-      inject_into_file('Gemfile', "\ngem 'airbrake'",
-                       after: '# user_choice')
-    end
-
-    def add_bootstrap3_gem
-      inject_into_file('Gemfile', "\ngem 'twitter-bootstrap-rails'",
-                       after: '# user_choice')
-      inject_into_file('Gemfile', "\ngem 'devise-bootstrap-views'",
-                       after: '# user_choice') if user_choose?(:devise)
-    end
-
-    def add_devise_gem
-      devise_conf = <<-TEXT
-
-  # v.3.5 syntax. will be deprecated in 4.0
-  def configure_permitted_parameters
-    devise_parameter_sanitizer.for(:sign_in) do |user_params|
-      user_params.permit(:email, :password)
-    end
-
-    devise_parameter_sanitizer.for(:sign_up) do |user_params|
-      user_params.permit(:email, :password, :password_confirmation)
-    end
-  end
-  protected :configure_permitted_parameters
-    TEXT
-      inject_into_file('Gemfile', "\ngem 'devise'", after: '# user_choice')
-      inject_into_file('app/controllers/application_controller.rb',
-                       "\nbefore_action :configure_permitted_parameters, if: :devise_controller?",
-                       after: 'class ApplicationController < ActionController::Base')
-
-      inject_into_file('app/controllers/application_controller.rb', devise_conf,
-                       after: 'protect_from_forgery with: :exception')
-      copy_file 'devise_rspec.rb', 'spec/support/devise.rb'
-    end
-
-    def add_will_paginate_gem
-      inject_into_file('Gemfile', "\ngem 'will_paginate', '~> 3.0.6'",
-                       after: '# user_choice')
-      inject_into_file('Gemfile', "\ngem 'will_paginate-bootstrap'",
-                       after: '# user_choice') if user_choose?(:bootstrap3) ||
-                                                  user_choose?(:bootstrap3_sass)
-    end
-
-    def add_responders_gem
-      inject_into_file('Gemfile', "\ngem 'responders'", after: '# user_choice')
-    end
-
-    def add_hirbunicode_gem
-      inject_into_file('Gemfile', "\ngem 'hirb-unicode'", after: '# user_choice')
-    end
-
-    def add_tinymce_gem
-      inject_into_file('Gemfile', "\ngem 'tinymce-rails'", after: '# user_choice')
-      copy_file 'tinymce.yml', 'config/tinymce.yml'
-    end
-
-    # ------------------------------------ step4
-
-    def add_user_gems
-      GEMPROCLIST.each do |g|
-        send "add_#{g}_gem" if user_choose? g.to_sym
-      end
-      add_guard_rubocop_gem if user_choose?(:guard) &&
-                               user_choose?(:rubocop) &&
-                               !options[:guard_rubocop]
-    end
-
-    def post_init
-      @@app_file_scss = 'app/assets/stylesheets/application.scss'
-      @@app_file_css = 'app/assets/stylesheets/application.css'
-      @@js_file = 'app/assets/javascripts/application.js'
-      install_queue = [:responders,
-                       :guard,
-                       :guard_rubocop,
-                       :bootstrap3_sass,
-                       :bootstrap3,
-                       :devise,
-                       :normalize,
-                       :tinymce,
-                       :rubocop]
-      install_queue.each { |q| send "after_install_#{q}" }
-      delete_comments
-    end
-
-    def after_install_devise
-      generate 'devise:install' if user_choose? :devise
-      if !@@devise_model.empty? && user_choose?(:devise)
-        generate "devise #{@@devise_model.titleize}"
-        inject_into_file('app/controllers/application_controller.rb',
-                         "\nbefore_action :authenticate_user!",
-                         after: 'before_action :configure_permitted_parameters, if: :devise_controller?')
-      end
-      if user_choose?(:bootstrap3)
-        generate 'devise:views:bootstrap_templates'
-      else
-        generate 'devise:views'
-      end
-    end
-
-    def after_install_rubocop
-      if user_choose? :rubocop
-        t = <<-TEXT
-
-if ENV['RAILS_ENV'] == 'test' || ENV['RAILS_ENV'] == 'development'
-  require 'rubocop/rake_task'
-  RuboCop::RakeTask.new
-end
-        TEXT
-        append_file 'Rakefile', t
-        run 'rubocop -a'
-      end
-    end
-
-    def after_install_guard
-      if user_choose?(:guard)
-        run 'guard init'
-        replace_in_file 'Guardfile',
-                        "guard 'puma' do",
-                        'guard :puma, port: 3000 do', quiet_err = true
-      end
-    end
-
-    def after_install_guard_rubocop
-      if user_choose?(:guard) && user_choose?(:rubocop)
-
-        cover_def_by 'Guardfile', 'guard :rubocop do', 'group :red_green_refactor, halt_on_fail: true do'
-        cover_def_by 'Guardfile', 'guard :rspec, ', 'group :red_green_refactor, halt_on_fail: true do'
-
-        replace_in_file 'Guardfile',
-                        'guard :rubocop do',
-                        'guard :rubocop, all_on_start: false do', quiet_err = true
-        replace_in_file 'Guardfile',
-                        'guard :rspec, cmd: "bundle exec rspec" do',
-                        "guard :rspec, cmd: 'bundle exec rspec', failed_mode: :keep do", quiet_err = true
-      end
-    end
-
-    def after_install_bootstrap3_sass
-      if user_choose? :bootstrap3_sass
-        setup_stylesheets
-        @@use_asset_pipelline = false
-        append_file(@@app_file_scss,
-                    "\n@import 'bootstrap-sprockets';\n@import 'bootstrap';")
-        inject_into_file(@@js_file, "\n//= require bootstrap-sprockets",
-                         after: '//= require jquery_ujs')
-        bundle_command 'exec rails generate simple_form:install --bootstrap'
-      end
-    end
-
-    def after_install_bootstrap3
-      if user_choose? :bootstrap3
-        @@use_asset_pipelline = true
-        remove_file 'app/views/layouts/application.html.erb'
-        generate 'bootstrap:install static'
-        generate 'bootstrap:layout'
-        bundle_command 'exec rails generate simple_form:install --bootstrap'
-        inject_into_file('app/assets/stylesheets/bootstrap_and_overrides.css',
-                         "  =require devise_bootstrap_views\n",
-                         before: '  */')
-      end
-    end
-
-    def after_install_normalize
-      if @@use_asset_pipelline
-        inject_into_file(@@app_file_css, " *= require normalize-rails\n",
-                         after: " * file per style scope.\n *\n")
-      else
-        inject_into_file(@@app_file_scss, "\n@import 'normalize-rails';",
-                         after: '@charset "utf-8";')
-      end
-    end
-
-    def after_install_tinymce
-      if user_choose? :tinymce
-        inject_into_file(@@js_file, "\n//= require tinymce-jquery",
-                         after: '//= require jquery_ujs')
-      end
-    end
-
-    def after_install_responders
-      run('rails g responders:install') if user_choose? :responders
-    end
-
     def show_goodbye_message
-      say 'Congratulations! You just pulled our suspenders.'
+      say_color BOLDGREEN, 'Congratulations! You just pulled our suspenders.'
       say_color YELLOW, "Remember to run 'rails generate airbrake' with your API key." if user_choose? :airbrake
     end
 
@@ -980,11 +669,12 @@ end
       end
 
       def user_choose?(g)
-        @@user_choice.include? g
+        AppBuilder.user_choice.include? g
       end
 
       def add_to_user_choise(g)
-        @@user_choice.push g
+        AppBuilder.user_choice.push g
       end
+
   end
 end

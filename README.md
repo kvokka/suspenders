@@ -81,7 +81,7 @@ it with gemname flag, after app_name, like `suspenders projectname --slim`.
 List of gems you always can get with `suspenders --gems` command. Also, 
 `suspenders --help` can be useful.
 
-Note, that databases with names `projectname`_development and `projectname`_test
+!!! Note, that databases with names `projectname`_development and `projectname`_test
 will be dropped. For example, if your project calls `awesome`, databases
 `awesome_development` and `awesome_test` will be dropped.
 
