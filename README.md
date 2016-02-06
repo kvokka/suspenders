@@ -4,10 +4,10 @@
 
 ## About
 
-Fork from thoughtbot/suspenders
+Fork from thoughtbot/suspenders(https://github.com/thoughtbot/suspenders)
 Implemented function of user choice gems installation with all their settings,
 so you can use fully working application with all needed installed and
-configured from the box
+configured from the box. Cut `Bitters` as default choice. 
 
 This user gem pack are available for installation and some other goodies from
 the box
@@ -245,6 +245,25 @@ installing QT are
 
 PostgreSQL needs to be installed and running for the `db:create` rake task.
 
+## Contributing
+
+If you want to get your gem in suspenders follow this steps
+
+1. Clone this repository
+2. If you need to add new question in menu add it in UserGemsMenu
+3. Add your gem with description in `EditMenuQuestions`.
+4. Add per `bundler` hooks in `BeforeBundlePatch`. Use function name with this 
+template `add_awesome_gem` where `awesome` is a gem name. Usually minimum is to 
+add gem into `Gemfile`.
+5. Add after install hooks in `AfterInstallPatch`. Name your function 
+`after_install_awesome`. Also, add it in query at `#post_init`. Other way it 
+will not run
+6. Update README.MD
+7. Make PR
+
+If you find some misprints fell free to fix them.
+
+Thank you!
 
 ## License
 
